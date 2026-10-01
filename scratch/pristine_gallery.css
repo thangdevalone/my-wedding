@@ -1,0 +1,57 @@
+.w-gallery {position: absolute;width: 100%;height: 100%;overflow: hidden;}
+.w-gallery .w-gallery-view {position: absolute;overflow: hidden;}
+.w-gallery .w-gallery-view > .w-gallery-view-item {background-size: cover;background-repeat: no-repeat;background-position: center center;width: 100%;height: 100%;position: relative;display: none;transition: transform 500ms ease-in-out;-webkit-backface-visibility: hidden;backface-visibility: hidden;-webkit-perspective: 1000px;perspective: 1000px;}
+.w-gallery .w-gallery-view > .w-gallery-view-item.play-video {cursor: pointer;}
+.w-gallery .w-gallery-view > .w-gallery-view-item.play-video:after {content: '';position: absolute;top: 0;left: 0;right: 0;bottom: 0;margin: auto;width: 60px;height: 60px;background: url(https://w.ladicdn.com/source/ladipage-play.svg?v=1.0) no-repeat center center;background-size: contain;pointer-events: none;cursor: pointer;}
+.w-gallery .w-gallery-view > .w-gallery-view-item.next, .w-gallery .w-gallery-view > .w-gallery-view-item.selected.right {left: 0;transform: translate3d(100%, 0, 0);}
+.w-gallery .w-gallery-view > .w-gallery-view-item.prev, .w-gallery .w-gallery-view > .w-gallery-view-item.selected.left {left: 0;transform: translate3d(-100%, 0, 0);}
+.w-gallery .w-gallery-view > .w-gallery-view-item.next.left, .w-gallery .w-gallery-view > .w-gallery-view-item.prev.right, .w-gallery .w-gallery-view > .w-gallery-view-item.selected {left: 0;transform: translate3d(0, 0, 0);}
+.w-gallery .w-gallery-view > .selected, .w-gallery .w-gallery-view > .next, .w-gallery .w-gallery-view > .prev {display: block;}
+.w-gallery .w-gallery-view > .selected {left: 0;}
+.w-gallery .w-gallery-view > .next, .w-gallery .w-gallery-view > .prev {position: absolute;top: 0;width: 100%;}
+.w-gallery .w-gallery-view > .next {left: 100%;}
+.w-gallery .w-gallery-view > .prev {left: -100%;}
+.w-gallery .w-gallery-view > .next.left, .w-gallery .w-gallery-view > .prev.right {left: 0;}
+.w-gallery .w-gallery-view > .selected.left {left: -100%;}
+.w-gallery .w-gallery-view > .selected.right {left: 100%;}
+.w-gallery .w-gallery-control {position: absolute;overflow: hidden;}
+.w-gallery .w-gallery-view .w-gallery-view-arrow {position: absolute;top: calc(50% - (33px) / 2);cursor: pointer;z-index: 90000040;}
+.w-gallery .w-gallery-view .w-gallery-view-arrow-left {left: 5px;transform: rotateY(180deg);-webkit-transform: rotateY(180deg);}
+.w-gallery .w-gallery-view .w-gallery-view-arrow-right {right: 5px;}
+.w-gallery .w-gallery-control .w-gallery-control-arrow {position: absolute;cursor: pointer;z-index: 90000040;}
+.w-gallery .w-gallery-control .w-gallery-control-box {position: relative;}
+.w-gallery .w-gallery-control .w-gallery-control-box .w-gallery-control-item {background-size: cover;background-repeat: no-repeat;background-position: center center;float: left;position: relative;cursor: pointer;filter: invert(15%);}
+.w-gallery .w-gallery-control .w-gallery-control-box .w-gallery-control-item.play-video:after {content: '';position: absolute;top: 0;left: 0;right: 0;bottom: 0;margin: auto;width: 30px;height: 30px;background: url(https://w.ladicdn.com/source/ladipage-play.svg?v=1.0) no-repeat center center;background-size: contain;pointer-events: none;cursor: pointer;}
+.w-gallery .w-gallery-control .w-gallery-control-box .w-gallery-control-item:hover {filter: none;}
+.w-gallery .w-gallery-control .w-gallery-control-box .w-gallery-control-item.selected {filter: none;}
+.w-gallery .w-gallery-control .w-gallery-control-box .w-gallery-control-item:last-child {margin-right: 0 !important;margin-bottom: 0 !important;;}
+.w-gallery .w-gallery-view .w-gallery-view-arrow, .w-gallery .w-gallery-control .w-gallery-control-arrow {width: 33px;height: 33px;background-repeat: no-repeat;background-position: center center;background-image: url("data:image/svg+xml;utf8, %3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22%23000%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M7.00015%200.585938L18.4144%2012.0002L7.00015%2023.4144L5.58594%2022.0002L15.5859%2012.0002L5.58594%202.00015L7.00015%200.585938Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");}
+.w-gallery.w-gallery-bottom .w-gallery-view {top: 0;width: 100%;}
+.w-gallery.w-gallery-bottom .w-gallery-control {width: 100%;bottom: 0;}
+.w-gallery.w-gallery-bottom .w-gallery-control .w-gallery-control-arrow {top: calc(50% - (33px) / 2);}
+.w-gallery.w-gallery-bottom .w-gallery-control .w-gallery-control-arrow-left {left: 0px;transform: rotateY(180deg) scale(0.6);-webkit-transform: rotateY(180deg) scale(0.6);}
+.w-gallery.w-gallery-bottom .w-gallery-control .w-gallery-control-arrow-right {right: 0px;transform: scale(0.6);-webkit-transform: scale(0.6);}
+.w-gallery.w-gallery-bottom .w-gallery-control .w-gallery-control-box {display: -webkit-inline-flex;display: inline-flex;left: 0;transition: left 150ms ease-in-out;}
+.w-gallery .w-gallery-view > .w-gallery-view-item {transition: transform 300ms ease-in-out;}
+#GALLERY1 .w-gallery .w-gallery-view .w-gallery-view-arrow,#GALLERY1 .w-gallery .w-gallery-control .w-gallery-control-arrow {background-image: url("data:image/svg+xml;utf8, %3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22rgba(255%2C%20255%2C%20255%2C%201)%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M7.00015%200.585938L18.4144%2012.0002L7.00015%2023.4144L5.58594%2022.0002L15.5859%2012.0002L5.58594%202.00015L7.00015%200.585938Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");}
+#GALLERY1 > .w-gallery > .w-gallery-view {height: calc(100% - 90px);}
+#GALLERY1 > .w-gallery > .w-gallery-control {height: 80px;}
+#GALLERY1 > .w-gallery > .w-gallery-control > .w-gallery-control-box > .w-gallery-control-item {width: 80px; height: 80px;margin-right: 10px;}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="0"],#GALLERY1 .w-gallery .w-gallery-view-item[data-index="5"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/9-20260617065241-on31o.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="0"],#GALLERY1 .w-gallery .w-gallery-control-item[data-index="5"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/9-20260617065241-on31o.jpg");}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="1"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/12-20260617065246-rvk1q.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="1"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/12-20260617065246-rvk1q.jpg");}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="2"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/7-20260617065241-3r7k3.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="2"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/7-20260617065241-3r7k3.jpg");}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="3"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/11-20260617065241-xrulr.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="3"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/11-20260617065241-xrulr.jpg");}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="4"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/10-20260617065241-cbyda.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="4"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/10-20260617065241-cbyda.jpg");}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="6"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/6-20260617065234--7x7b.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="6"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/6-20260617065234--7x7b.jpg");}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="7"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/5-20260617065234-cjlz5.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="7"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/5-20260617065234-cjlz5.jpg");}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="8"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/4-20260617065234-6g4bq.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="8"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/4-20260617065234-6g4bq.jpg");}
+#GALLERY1 .w-gallery .w-gallery-view-item[data-index="9"] {background-image: url("https://w.ladicdn.com/s750x1050/691804d3a89f3900120ca482/3-20260617065234-gpety.jpg");}
+#GALLERY1 .w-gallery .w-gallery-control-item[data-index="9"] {background-image: url("https://w.ladicdn.com/s400x400/691804d3a89f3900120ca482/3-20260617065234-gpety.jpg");}
