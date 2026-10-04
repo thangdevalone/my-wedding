@@ -23,8 +23,8 @@ export function useMusicPlayer(src: string) {
     // Auto-play on first user gesture (matching live site behavior)
     const startMusicOnFirstGesture = (e: Event) => {
       if (musicStartedRef.current) return;
-      const target = e.target as HTMLElement | null;
-      if (target && target.closest("#music-toggle")) return;
+      const target = e.target as Partial<Element> | null;
+      if (target && typeof target.closest === "function" && target.closest("#music-toggle")) return;
 
       audio
         .play()

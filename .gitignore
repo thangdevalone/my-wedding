@@ -44,3 +44,9 @@ next-env.d.ts
 scratch/
 *.py
 *.log
+
+# local database
+/data/*.db
+/data/*.db-shm
+/data/*.db-wal
+!/data/schema.sql

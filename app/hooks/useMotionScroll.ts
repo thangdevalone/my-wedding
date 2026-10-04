@@ -36,6 +36,8 @@ const ANIMATION_DELAYS: Record<string, number> = {
   HEADLINE64: 1150,
   HEADLINE65: 1150,
   GROUP22: 1200,
+  MAP_GIRL: 1200,
+  MAP_BOY: 1200,
   HEADLINE66: 1000,
   HEADLINE68: 1150,
   LINE11: 1000,
@@ -79,17 +81,34 @@ const ANIMATION_DELAYS: Record<string, number> = {
   HEADLINE130: 1000,
 };
 
+// Original delays are kept only for their relative order (see playElementAnimation)
+const DELAY_SCALE = 0.08;
+
 export function useMotionScroll() {
   useEffect(() => {
     const animatedElements = document.querySelectorAll<HTMLElement>(".w-animation-hidden");
     if (!animatedElements.length) return;
 
+    let observer: IntersectionObserver | null = null;
+
     const playElementAnimation = (el: HTMLElement) => {
+      // Already played (e.g. triggered earlier by its parent group)
+      if (el.classList.contains("w-animation")) return;
+      observer?.unobserve(el);
+
       // 1. Add w-animation to initiate the CSS keyframe selector
       el.classList.add("w-animation");
 
-      // 2. Keep w-animation-hidden until delay expires (exact redtone behavior)
-      const delay = ANIMATION_DELAYS[el.id] ?? 0;
+      // Nested animated children (e.g. the red heart inside the calendar group)
+      // must start together with their parent instead of waiting to be scrolled into view.
+      el.querySelectorAll<HTMLElement>(".w-animation-hidden").forEach((child) => {
+        playElementAnimation(child);
+      });
+
+      // 2. Keep w-animation-hidden for a SHORT stagger only. The original redtone
+      // delays (0.5-1.5s) made content show up too late while scrolling, so they are
+      // scaled down to keep the cascade order without the waiting (max ~120ms).
+      const delay = Math.round((ANIMATION_DELAYS[el.id] ?? 0) * DELAY_SCALE);
 
       if (delay > 0) {
         setTimeout(() => {
@@ -100,19 +119,20 @@ export function useMotionScroll() {
       }
     };
 
-    const observer = new IntersectionObserver(
+    observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const el = entry.target as HTMLElement;
-            observer.unobserve(el);
             playElementAnimation(el);
           }
         });
       },
       {
         threshold: 0.01,
-        rootMargin: "0px 0px 40px 0px",
+        // start a little BEFORE the element enters the screen so it is already
+        // visible when the user scrolls to it
+        rootMargin: "0px 0px 100px 0px",
       }
     );
 
@@ -122,10 +142,10 @@ export function useMotionScroll() {
         // Elements in initial viewport on F5
         playElementAnimation(el);
       } else {
-        observer.observe(el);
+        observer?.observe(el);
       }
     });
 
-    return () => observer.disconnect();
+    return () => observer?.disconnect();
   }, []);
 }

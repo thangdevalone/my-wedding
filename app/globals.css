@@ -63,52 +63,7 @@ body {
   animation-fill-mode: both !important;
 }
 
-/* === EMBEDDED FONTS === */
-@font-face {
-  font-family: "QkVZTEUEVSRkVDVElPTiSRUdVTEFSLlRURg";
-  src: url("/fonts/beyondperfection-regular-20260608154336-ef_3n.ttf") format("truetype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "QluemVsRGVjbJhdGlZSSZWdbGFyLnRZg";
-  src: url("/fonts/cinzeldecorative-regular-20260608072146-oxrr_.ttf") format("truetype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "TGyYSSZWdbGFyLnRZg";
-  src: url("/fonts/lora-regular-20260507122944-joqic.ttf") format("truetype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "MUZUViWSVAtRXJnaXNhLVJlZVsYXIgKDEpLmZg";
-  src: url("/fonts/1ftv-vip-ergisa-regular-1-20260507115831-zgvj8.otf") format("opentype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "UZOLVdhbGxvdMubRm";
-  src: url("/fonts/svn-wallows-20260615031637-bjis_.otf") format("opentype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "UZOLVJcRsaWnLVNvdWkLmZg";
-  src: url("/fonts/svn-rustling-sound-20260617074109-dq1gv.otf") format("opentype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "RmyZXNLVJlZVsYXIudHRm";
-  src: url("/fonts/forest-regular-20260619012504-he6vp.ttf") format("truetype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "MUZUViWSVAtSElHSCTUElSSVRFRCPVEY";
-  src: url("/fonts/1ftv-vip-high-spirited-20260517150751-hrtrm.otf") format("opentype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "MUZUViWSVAtTGFdWFyZGkudHRm";
-  src: url("/fonts/1ftv-vip-lazuardi-20260623105043-0zc9k.ttf") format("truetype");
-  font-display: swap;
-}
+/* === EMBEDDED FONTS: declared once in /public/wedding.css (custom) and /public/css/css2 (Google, self-hosted) === */
 
 /* ==========================================================================
    GALLERY SLIDER - 100% SEAMLESS CONTINUOUS CAROUSEL ANIMATION & VISIBLE ARROWS
@@ -267,14 +222,384 @@ body {
 }
 
 #HEADLINE111 {
-  top: 495px !important;
+  top: 613px !important;
 }
 
 #HEADLINE112 {
-  top: 552px !important;
+  top: 670px !important;
 }
 
 
 
 
 
+
+/* ==========================================================================
+   SAVE THE DATE PHOTO STRIP: dark fade at the bottom so the 28 / 11 / 26
+   numbers stay readable on top of white dresses (same fade as the hero photo)
+   ========================================================================== */
+#IMAGE77 > .w-image::after,
+#IMAGE78 > .w-image::after,
+#IMAGE79 > .w-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    rgba(0, 0, 0, 0) 35%,
+    rgba(0, 0, 0, 0.35) 65%,
+    rgba(0, 0, 0, 0.72) 100%
+  );
+}
+/* Gallery slides open the lightbox when clicked */
+.w-gallery .w-gallery-view > .w-gallery-view-item {
+  cursor: zoom-in;
+}
+
+/* ==========================================================================
+   RSVP FORM: extra "lời chúc" textarea (FORM_ITEM3) below the 4 original fields.
+   The button and the section grow by the same amount (+93px).
+   ========================================================================== */
+#FORM_ITEM3 {
+  top: 180px !important;
+  left: 0 !important;
+  width: 357.25px !important;
+  height: 80px !important;
+}
+#FORM_ITEM3 .w-form-item-container,
+#FORM_ITEM3 .w-form-item-background {
+  border-radius: 0 !important;
+}
+#FORM_ITEM3 textarea.w-form-control {
+  padding: 8px 5px !important;
+  line-height: 1.5;
+  resize: none;
+}
+#BUTTON2 { top: 275px !important; }
+#GROUP44 { height: 399px !important; }
+#SECTION8,
+#IMAGE59 { height: 507px !important; }
+
+/* ==========================================================================
+   WISHES DOCK - live-comment feed pinned to the bottom (1/4 screen height).
+   Click-through so it never blocks the card; the round button hides it.
+   ========================================================================== */
+.wishes-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100vw, 420px);
+  height: 25vh;
+  height: 25dvh;
+  max-height: 25dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 90000050;
+  font-family: Taviraj, serif;
+  color: #fff;
+}
+.wishes-dock[data-open="false"] {
+  height: auto;
+  max-height: none;
+}
+.wishes-feed {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 8px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 35%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 35%);
+}
+.wishes-track {
+  margin: auto 0 0; /* sit at bottom if not scrolling */
+  display: flex;
+  flex-direction: column;
+}
+.wishes-feed[data-scrolling="true"] .wishes-track {
+  margin: 0;
+  animation: wishes-scroll var(--wishes-dur, 25s) linear infinite;
+  will-change: transform;
+}
+.wishes-feed:hover .wishes-track,
+.wishes-feed:active .wishes-track {
+  animation-play-state: paused;
+}
+.wishes-group {
+  display: flex;
+  flex-direction: column;
+}
+.wishes-spacer {
+  flex: none;
+  height: 130px; /* viewport height so group A fully scrolls out before group B starts */
+}
+@keyframes wishes-scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+.wish-bubble,
+.wishes-empty {
+  width: fit-content;
+  max-width: calc(100% - 56px); /* keeps the right corner free for the music button */
+  padding: 5px 11px;
+  border-radius: 13px;
+  background: rgba(142, 28, 44, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  font-size: 13px;
+  line-height: 1.38;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.wish-bubble {
+  margin: 0 0 5px;
+}
+.wish-bubble b { font-weight: 700; }
+.wishes-empty { margin: auto 0 0; }
+
+.wishes-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Leaves room for the music toggle (50px + 16px right margin = 66px) */
+  padding-right: 66px;
+  pointer-events: none;
+}
+.wishes-toggle,
+.wishes-pill {
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(142, 28, 44, 0.78);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+.wishes-toggle {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border-radius: 50%;
+}
+.wishes-pill {
+  flex: 1;
+  min-width: 0;
+  height: 50px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 15px;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wishes-toggle:active,
+.wishes-pill:active { transform: scale(0.96); }
+.wishes-count {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #fff;
+  color: rgb(127, 6, 6);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 769px) {
+  .wishes-dock {
+    padding: 0 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+  .wishes-bar {
+    gap: 12px;
+    padding-right: 74px; /* 54px music button + 20px right margin */
+  }
+  .wishes-toggle {
+    width: 54px;
+    height: 54px;
+  }
+  .wishes-pill {
+    height: 54px;
+    padding: 0 22px;
+    font-size: 15.5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wishes-feed[data-scrolling="true"] .wishes-track { animation: none; }
+}
+
+/* ==========================================================================
+   RESPONSIVE: 420px design canvas scaled to fit screens narrower than 420px
+   (--page-zoom is set in layout.tsx). Wider screens keep the centred 420px column.
+   ========================================================================== */
+.w-wraper {
+  width: 420px !important;
+  max-width: none !important;
+  zoom: var(--page-zoom, 1);
+}
+
+/* ==========================================================================
+   SCROLL ANIMATIONS: start right when scrolled to (no 1-1.5s waiting).
+   JS (useMotionScroll) keeps only a tiny stagger; CSS delays are zeroed and the
+   fade-ins shortened. Infinite loops (heart pulse, map pin) keep their duration.
+   ========================================================================== */
+.w-animation > .w-headline,
+.w-animation > .w-group,
+.w-animation > .w-line,
+.w-animation > .w-image,
+.w-animation > .w-paragraph,
+.w-animation > .w-form {
+  animation-delay: 0s !important;
+  animation-duration: 0.6s !important;
+}
+.w-animation > .w-shape,
+.w-animation .map-btn {
+  animation-delay: 0s !important;
+}
+
+/* ==========================================================================
+   LIGHTBOX controls: round glass buttons with SVG icons, vertically centred.
+   ========================================================================== */
+.lightbox-screen div.lightbox-close {
+  width: 40px;
+  height: 40px;
+  margin: 12px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
+  background-size: 15px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-sizing: border-box;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+.lightbox-screen div.lightbox-close:hover { background-color: rgba(0, 0, 0, 0.7); }
+.lightbox-screen div.lightbox-close:active { transform: scale(0.92); }
+
+.lightbox-screen .lightbox-nav-btn {
+  position: absolute;
+  top: 50%;
+  margin: -22px 0 0;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  transform: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 0;
+  z-index: 9000000090;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+.lightbox-screen .lightbox-nav-btn svg { display: block; flex: none; }
+.lightbox-screen .lightbox-nav-btn:hover { background-color: rgba(0, 0, 0, 0.7); }
+.lightbox-screen .lightbox-nav-btn:active { transform: scale(0.92); }
+.lightbox-screen .lightbox-prev { left: 12px; }
+.lightbox-screen .lightbox-next { right: 12px; }
+
+.lightbox-screen .lightbox-counter {
+  position: absolute;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font: 500 13px/1.6 Taviraj, serif;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  z-index: 9000000090;
+}
+/* ==========================================================================
+   THANK-YOU POPUP (after sending RSVP / wish): no cover photo, content centred,
+   "Quay lại" button to close it.
+   ========================================================================== */
+#POPUP1,
+#POPUP1 #IMAGE69,
+#POPUP1 #IMAGE69 > .w-image > .w-image-background {
+  height: 270px !important;
+}
+#POPUP1 > .w-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px 22px;
+  box-sizing: border-box;
+  text-align: center;
+}
+#POPUP1 #IMAGE69 { top: 0 !important; left: 0 !important; }
+#POPUP1 #HEADLINE100,
+#POPUP1 #HEADLINE101 {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  flex: none;
+  width: 100% !important;
+  margin: 0 !important;
+}
+#POPUP1 #HEADLINE101 { order: 1; }
+#POPUP1 #HEADLINE100 { order: 2; }
+#POPUP1 #HEADLINE100 > .w-headline {
+  text-align: center !important;
+  font-size: 15px;
+}
+#POPUP1 .popup-back {
+  flex: none;
+  order: 3;
+  position: relative;
+  margin-top: 6px;
+  min-width: 170px;
+  height: 42px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 0;
+  background: rgb(127, 6, 6);
+  color: #fff;
+  font: 400 17px/1 Taviraj, serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+#POPUP1 .popup-back:hover { background: rgb(150, 20, 20); }
+#POPUP1 .popup-back:active { transform: scale(0.97); }
+
+/* New wish pops into the feed */
+.wish-bubble[data-fresh] {
+  animation: wish-pop 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.15) both;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+@keyframes wish-pop {
+  from { opacity: 0; transform: translateY(26px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wish-bubble[data-fresh] { animation: none; }
+}

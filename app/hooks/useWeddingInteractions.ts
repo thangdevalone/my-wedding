@@ -196,6 +196,112 @@ export function useWeddingInteractions() {
         thumb.addEventListener("click", handler);
         return { thumb, handler };
       });
+      // -----------------------------------------------------------------------
+      // Click a slide -> open full-screen lightbox (uses the .lightbox-* styles)
+      // -----------------------------------------------------------------------
+      const lightboxScreen = document.getElementById("lightbox-screen");
+      const imageUrls = viewItems.map((item) => {
+        const match = getComputedStyle(item).backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+        return match ? match[1] : "";
+      });
+      let lightboxIndex = 0;
+      let lightboxImg: HTMLImageElement | null = null;
+      let lightboxSwipeX = 0;
+
+      let lightboxCounter: HTMLDivElement | null = null;
+
+      const showLightboxImage = (idx: number) => {
+        lightboxIndex = (idx + totalSlides) % totalSlides;
+        if (lightboxImg) lightboxImg.src = imageUrls[lightboxIndex];
+        if (lightboxCounter) lightboxCounter.textContent = `${lightboxIndex + 1} / ${totalSlides}`;
+      };
+
+      const onLightboxKey = (e: KeyboardEvent) => {
+        if (e.key === "Escape") closeLightbox();
+        else if (e.key === "ArrowRight") showLightboxImage(lightboxIndex + 1);
+        else if (e.key === "ArrowLeft") showLightboxImage(lightboxIndex - 1);
+      };
+
+      function closeLightbox() {
+        if (!lightboxScreen) return;
+        lightboxScreen.style.display = "none";
+        lightboxScreen.innerHTML = "";
+        lightboxImg = null;
+        document.body.style.removeProperty("overflow");
+        document.removeEventListener("keydown", onLightboxKey);
+      }
+
+      const openLightbox = (idx: number) => {
+        if (!lightboxScreen) return;
+        lightboxScreen.innerHTML = "";
+
+        const closeBtn = document.createElement("div");
+        closeBtn.className = "lightbox-close";
+        closeBtn.style.cssText = "top:0;right:0;";
+        closeBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeLightbox();
+        });
+
+        const track = document.createElement("div");
+        track.className = "lightbox-gallery-track";
+        track.style.cssText = "position:absolute;inset:0;";
+        lightboxImg = document.createElement("img");
+        lightboxImg.className = "lightbox-item";
+        lightboxImg.alt = "";
+        lightboxImg.draggable = false;
+        lightboxImg.style.cssText =
+          "max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;transform:translate(-50%,-50%);";
+        track.appendChild(lightboxImg);
+
+        const CHEVRON_PATHS: Record<string, string> = {
+          "lightbox-prev": "M15 5l-7 7 7 7",
+          "lightbox-next": "M9 5l7 7-7 7",
+        };
+        const makeNav = (cls: string, step: number) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `lightbox-nav-btn ${cls}`;
+          btn.setAttribute("aria-label", step < 0 ? "Ảnh trước" : "Ảnh sau");
+          btn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${CHEVRON_PATHS[cls]}"/></svg>`;
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            showLightboxImage(lightboxIndex + step);
+          });
+          return btn;
+        };
+
+        lightboxCounter = document.createElement("div");
+        lightboxCounter.className = "lightbox-counter";
+
+        track.addEventListener("touchstart", (e) => {
+          lightboxSwipeX = e.touches[0].pageX;
+        }, { passive: true });
+        track.addEventListener("touchend", (e) => {
+          const diff = e.changedTouches[0].pageX - lightboxSwipeX;
+          if (Math.abs(diff) >= 40) showLightboxImage(lightboxIndex + (diff > 0 ? -1 : 1));
+        });
+        // Click on the empty area around the photo closes the lightbox
+        track.addEventListener("click", (e) => {
+          if (e.target === track) closeLightbox();
+        });
+
+        lightboxScreen.append(track, closeBtn, makeNav("lightbox-prev", -1), makeNav("lightbox-next", 1), lightboxCounter);
+        showLightboxImage(idx);
+        lightboxScreen.style.display = "block";
+        document.body.style.overflow = "hidden";
+        document.addEventListener("keydown", onLightboxKey);
+      };
+
+      const onViewClick = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains("w-gallery-view-arrow")) return;
+        // Ignore the click that ends a swipe/drag
+        if (Math.abs(e.pageX - startX) > 10 || Math.abs(e.pageY - startY) > 10) return;
+        openLightbox(currentIndex);
+      };
+      viewContainer?.addEventListener("click", onViewClick);
+
 
       // Touch & Mouse Swipe on Gallery View
       let startX = 0;
@@ -254,6 +360,8 @@ export function useWeddingInteractions() {
 
       cleanupGallery = () => {
         if (transitionTimer) clearTimeout(transitionTimer);
+        closeLightbox();
+        viewContainer?.removeEventListener("click", onViewClick);
 
         thumbListeners.forEach(({ thumb, handler }) => {
           thumb.removeEventListener("click", handler);
@@ -303,15 +411,84 @@ export function useWeddingInteractions() {
       if (backdrop) backdrop.style.display = "none";
     };
 
-    const handleSubmit = (e: Event) => {
-      e.preventDefault();
-      openPopup();
+    const submitBtn = document.getElementById("BUTTON2") as HTMLElement | null;
+    const submitLabel = submitBtn?.querySelector<HTMLElement>(".w-headline") ?? null;
+    const defaultLabel = submitLabel?.textContent ?? "XÁC NHẬN";
+    let submitting = false;
+    let labelTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const setLabel = (text: string, resetAfterMs = 0) => {
+      if (!submitLabel) return;
+      submitLabel.textContent = text;
+      clearTimeout(labelTimer);
+      if (resetAfterMs) labelTimer = setTimeout(() => (submitLabel.textContent = defaultLabel), resetAfterMs);
     };
+
+    const handleSubmit = async (e: Event) => {
+      e.preventDefault();
+      if (!form || submitting) return;
+      submitting = true;
+      if (submitBtn) submitBtn.style.pointerEvents = "none";
+      setLabel("ĐANG GỬI...");
+
+      const data = new FormData(form);
+      const payload = {
+        name: data.get("name"),
+        attendance: data.get("form_item8"),
+        companions: data.get("form_item9"),
+        side: data.get("form_item10"),
+        message: data.get("message"),
+        invite: data.get("invite"),
+        website: data.get("website"), // honeypot
+      };
+
+      try {
+        const res = await fetch("/api/rsvp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.status === 422) {
+          setLabel("TỪ NGỮ KHÔNG PHÙ HỢP", 3500);
+          return;
+        }
+        if (!res.ok) throw new Error(String(res.status));
+
+        // keep the invited guest's name, clear everything else
+        const keepName = (form.elements.namedItem("name") as HTMLInputElement | null)?.defaultValue ?? "";
+        form.reset();
+        const nameInput = form.elements.namedItem("name") as HTMLInputElement | null;
+        if (nameInput) nameInput.value = keepName;
+
+        setLabel(defaultLabel);
+        openPopup();
+        // show the new wish in the bottom feed right away (with animation)
+        const sent = await res.json().catch(() => null);
+        const wishText = typeof payload.message === "string" ? payload.message.trim() : "";
+        window.dispatchEvent(
+          new CustomEvent("wishes:refresh", {
+            detail:
+              wishText && sent?.id
+                ? { wish: { id: sent.id, name: String(payload.name ?? "").trim(), message: wishText, createdAt: new Date().toISOString() } }
+                : undefined,
+          })
+        );
+      } catch {
+        setLabel("GỬI LỖI - THỬ LẠI", 3500);
+      } finally {
+        submitting = false;
+        if (submitBtn) submitBtn.style.pointerEvents = "auto";
+      }
+    };
+
+    // The red XÁC NHẬN "button" is a styled div: make it submit the form
+    const onButtonClick = () => form?.requestSubmit();
+    submitBtn?.addEventListener("click", onButtonClick);
 
     form?.addEventListener("submit", handleSubmit);
     backdrop?.addEventListener("click", closePopup);
 
-    const closeBtn = popupEl?.querySelector(".w-popup-close");
+    const closeBtn = popupEl?.querySelector(".w-popup-close, .popup-back");
     closeBtn?.addEventListener("click", closePopup);
 
     // -------------------------------------------------------------------------
@@ -321,6 +498,8 @@ export function useWeddingInteractions() {
       clearInterval(countdownInterval);
       cleanupGallery();
       form?.removeEventListener("submit", handleSubmit);
+      submitBtn?.removeEventListener("click", onButtonClick);
+      clearTimeout(labelTimer);
       backdrop?.removeEventListener("click", closePopup);
       closeBtn?.removeEventListener("click", closePopup);
     };
