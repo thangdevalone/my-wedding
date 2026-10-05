@@ -461,22 +461,35 @@ body {
 }
 
 /* ==========================================================================
-   SCROLL ANIMATIONS: start right when scrolled to (no 1-1.5s waiting).
-   JS (useMotionScroll) keeps only a tiny stagger; CSS delays are zeroed and the
-   fade-ins shortened. Infinite loops (heart pulse, map pin) keep their duration.
+   SCROLL & COMPONENT ANIMATIONS (100% PARITY WITH NAWNGSWEDDING.ONLINE/REDTONE)
    ========================================================================== */
+.w-animation {
+  visibility: visible !important;
+  opacity: 1;
+}
+.w-animation > *,
+.w-animation > * > * {
+  -webkit-animation-fill-mode: both !important;
+  animation-fill-mode: both !important;
+}
+
+/* Smooth decelerating ease curve for all entrance animations (1s duration matching redtone) */
 .w-animation > .w-headline,
 .w-animation > .w-group,
 .w-animation > .w-line,
 .w-animation > .w-image,
 .w-animation > .w-paragraph,
 .w-animation > .w-form {
-  animation-delay: 0s !important;
-  animation-duration: 0.6s !important;
+  animation-duration: 1s !important;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 }
-.w-animation > .w-shape,
-.w-animation .map-btn {
-  animation-delay: 0s !important;
+
+/* Continuous infinite pulsing components matching redtone */
+#SHAPE1.w-animation > .w-shape,
+#GROUP22.w-animation > .w-group,
+#MAP_GIRL.w-animation .map-btn,
+#MAP_BOY.w-animation .map-btn {
+  animation-iteration-count: infinite !important;
 }
 
 /* ==========================================================================

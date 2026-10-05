@@ -300,5 +300,6 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
 #MAP_GIRL:hover .map-btn span, #MAP_BOY:hover .map-btn span{text-decoration: underline;}
 #MAP_GIRL.w-animation .map-btn, #MAP_BOY.w-animation .map-btn{animation-name: map-pulse; animation-delay: 1.2s; animation-duration: 1.4s; animation-timing-function: ease-in-out; animation-iteration-count: infinite;}
 @keyframes map-pulse{0%,100%{transform: scale(1);}50%{transform: scale(1.08);}}
+#HEADLINE85.w-animation > .w-headline, #GROUP72.w-animation > .w-group{animation-name: fadeInUp; animation-delay: 1.2s; animation-duration: 1s; animation-iteration-count: 1;}
 /* countdown: darker overlay so the white numbers stand out */
 #IMAGE117 > .w-image > .w-image-background{background-image: linear-gradient(rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.38)), url("/images/bg-gray.png");}
