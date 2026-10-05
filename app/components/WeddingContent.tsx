@@ -12,7 +12,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
 
   return (
     <>
-      <div className="w-wraper">
+      <div className="w-wraper" suppressHydrationWarning>
         <div id="SECTION1" className="w-section">
           <div className="w-section-background"></div>
           <div className="w-container">
@@ -24,21 +24,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
             <div id="BOX17" className="w-element">
               <div className="w-box w-transition"></div>
             </div>
-            <div id="GROUP3" className="w-element w-animation-hidden">
-              <div className="w-group">
-                <div id="BOX1" className="w-element">
-                  <div className="w-box w-transition"></div>
-                </div>
-                <div id="BOX2" className="w-element">
-                  <div className="w-box w-transition"></div>
-                </div>
-                <div id="IMAGE9" className="w-element">
-                  <div className="w-image">
-                    <div className="w-image-background"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+
             <div id="HEADLINE106" className="w-element">
               <h3 className="w-headline">WE'RE GETTING MARRIED&nbsp;</h3>{" "}
             </div>

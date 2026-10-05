@@ -57,7 +57,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){var d=document.documentElement;function f(){var w=window.innerWidth;var z=Math.min(1,w/420);d.style.setProperty('--page-zoom',z.toFixed(4));var el=document.querySelector('.w-wraper');if(el){el.style.zoom=z.toFixed(4);}}f();if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',f);}window.addEventListener('resize',f);window.addEventListener('orientationchange',f);})();",
+              "(function(){var d=document.documentElement;function f(){var w=window.innerWidth;var z=Math.min(1,w/420);d.style.setProperty('--page-zoom',z.toFixed(4));}f();window.addEventListener('resize',f);window.addEventListener('orientationchange',f);})();",
           }}
         />
         <meta httpEquiv="Cache-Control" content="no-cache" />
