@@ -6,9 +6,8 @@ WORKDIR /app
 
 # 2. Dependencies stage
 FROM base AS deps
-RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
-RUN npm ci && npm rebuild better-sqlite3 --build-from-source
+RUN npm ci
 
 # 3. Builder stage
 FROM base AS builder
@@ -35,7 +34,7 @@ ENV DATABASE_DIR=/app/data
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Create SQLite database directory with proper permissions
+# Create data directory with proper permissions
 RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
 
 # Copy built application, static assets and node_modules
