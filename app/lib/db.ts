@@ -13,8 +13,12 @@ export function getDb(): Database.Database {
     const dir = process.env.DATABASE_DIR || path.join(process.cwd(), "data");
     fs.mkdirSync(dir, { recursive: true });
 
-    const db = new Database(path.join(dir, "wedding.db"));
-    db.pragma("journal_mode = WAL");
+    const db = new Database(path.join(dir, "wedding.db"), { timeout: 5000 });
+    try {
+      db.pragma("journal_mode = DELETE");
+    } catch {
+      // fallback safe
+    }
     db.exec(`
       CREATE TABLE IF NOT EXISTS rsvps (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
