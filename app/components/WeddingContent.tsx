@@ -66,10 +66,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
               </h3>{" "}
             </div>
             <div id="HEADLINE137" className="w-element w-animation-hidden">
-              <h3 className="w-headline">
-                Quang Thắng &amp; Tường Lan
-                <br />
-              </h3>{" "}
+              <h3 className="w-headline">Quang Thắng &amp; Tường Lan</h3>{" "}
             </div>
           </div>
         </div>
