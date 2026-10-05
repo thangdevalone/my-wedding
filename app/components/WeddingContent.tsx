@@ -404,7 +404,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
                   <h3 className="w-headline">
                     Ông. Nguyễn Văn Dũng
                     <br />
-                    Bà. Nguyễn Thị Hưng
+                    Bà. Ninh Thị Hưng
                     <br />
                   </h3>{" "}
                 </div>
