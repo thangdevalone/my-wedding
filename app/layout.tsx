@@ -7,12 +7,24 @@ export const metadata: Metadata = {
   authors: [{ name: "thangdevalone" }],
   metadataBase: new URL("https://vochongthanglan.online"),
   openGraph: {
-    title: "Quang Thắng & Tường Lan",
+    title: "Quang Thắng & Tường Lan - Thiệp Cưới",
     description: "Thân mời bạn tới dự lễ thành hôn của chúng mình!",
     url: "https://vochongthanglan.online",
-    siteName: "thangdevalone",
+    siteName: "Quang Thắng & Tường Lan",
     type: "website",
-    images: ["/images/photo-cover.jpg"],
+    locale: "vi_VN",
+    images: [
+      {
+        url: "/images/gallery-02.jpg",
+        alt: "Quang Thắng & Tường Lan",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quang Thắng & Tường Lan - Thiệp Cưới",
+    description: "Thân mời bạn tới dự lễ thành hôn của chúng mình!",
+    images: ["/images/gallery-02.jpg"],
   },
 };
 
