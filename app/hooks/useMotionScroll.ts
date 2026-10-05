@@ -4,7 +4,6 @@ import { useEffect } from "react";
 
 // Exact animation delays from https://www.nawngswedding.online/redtone (milliseconds)
 const ANIMATION_DELAYS: Record<string, number> = {
-  GROUP3: 1000,
   LINE11: 1000,
   HEADLINE128: 500,
   HEADLINE134: 500,
