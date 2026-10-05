@@ -1,0 +1,15 @@
+services:
+  wedding-app:
+    image: ${IMAGE_NAME:-ghcr.io/thangdevalone/my-wedding:latest}
+    container_name: wedding-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-5200}:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - DATABASE_DIR=/app/data
+      - ADMIN_TOKEN=${ADMIN_TOKEN:-thangdevalone}

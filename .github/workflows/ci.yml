@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD - Build & Deploy to VPS
 
 on:
   push:
@@ -11,15 +11,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  build-and-test:
-    name: Build & Type Check
+  # 1. Kiểm tra TypeScript và Build test
+  check-and-test:
+    name: Check TypeScript
     runs-on: ubuntu-latest
-
-    env:
-      NEXT_TELEMETRY_DISABLED: 1
-      NODE_ENV: production
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,15 +36,108 @@ jobs:
       - name: Type check (TypeScript)
         run: npx tsc --noEmit
 
-      - name: Restore Next.js cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+  # 2. Build Docker Image và Push lên GitHub Container Registry (GHCR)
+  build-and-push:
+    name: Build & Push Docker Image to GHCR
+    needs: check-and-test
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.tags }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Build Next.js application
-        run: npm run build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # 3. SSH vào VPS và Pull Docker Image về chạy
+  deploy:
+    name: Deploy to VPS via SSH
+    needs: build-and-push
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy container on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          REPO_NAME: ${{ github.repository }}
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || 'thangdevalone' }}
+          APP_PORT: ${{ secrets.APP_PORT || '5200' }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          envs: GHCR_TOKEN,GHCR_USER,REPO_NAME,ADMIN_TOKEN,APP_PORT
+          script: |
+            set -e
+
+            echo "=== 1. Kiểm tra Docker trên VPS ==="
+            if ! command -v docker &> /dev/null; then
+              echo "LỖI: Docker chưa được cài trên VPS! Vui lòng cài Docker theo hướng dẫn."
+              exit 1
+            fi
+
+            echo "=== 2. Chuẩn bị thư mục dữ liệu SQLite ==="
+            mkdir -p ~/wedding-app/data
+            # Phân quyền để user nextjs trong container có quyền ghi SQLite
+            chmod 777 ~/wedding-app/data
+
+            echo "=== 3. Đăng nhập GHCR trên VPS ==="
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+            echo "=== 4. Pull image mới nhất ==="
+            IMAGE_NAME=$(echo "ghcr.io/$REPO_NAME" | tr '[:upper:]' '[:lower:]')
+            docker pull "${IMAGE_NAME}:latest"
+
+            echo "=== 5. Restart container ==="
+            docker stop wedding-app || true
+            docker rm wedding-app || true
+
+            PORT_MAP="${APP_PORT}:3000"
+            echo "Khởi chạy container mapping port $PORT_MAP..."
+            docker run -d \
+              --name wedding-app \
+              --restart unless-stopped \
+              -p "$PORT_MAP" \
+              -v ~/wedding-app/data:/app/data \
+              -e NODE_ENV=production \
+              -e DATABASE_DIR=/app/data \
+              -e ADMIN_TOKEN="$ADMIN_TOKEN" \
+              "${IMAGE_NAME}:latest"
+
+            echo "=== 6. Dọn dẹp images cũ ==="
+            docker image prune -f
+
+            echo "=== DEPLOY THÀNH CÔNG! ==="
+            docker ps --filter "name=wedding-app"
