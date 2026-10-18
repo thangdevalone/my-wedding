@@ -36,6 +36,12 @@ body {
   overflow-x: hidden;
   font-size: 12px;
   direction: ltr;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* === CRITICAL ANIMATION STYLES (SSR / F5 Anti-Flash) === */
@@ -711,6 +717,36 @@ body {
   z-index: 9000000090;
 }
 /* ==========================================================================
+   WISH FORM (RSVP) - Prevent iOS Mobile Safari auto-zoom on input focus
+   Mobile Safari forces viewport zoom on any input/textarea with font-size < 16px.
+   Setting 16px ensures seamless typing without unwanted page zoom.
+   ========================================================================== */
+#FORM2 input.w-form-control,
+#FORM2 textarea.w-form-control,
+.w-form .w-form-item .w-form-control {
+  font-size: 16px !important;
+  font-family: Taviraj, serif !important;
+  color: rgb(127, 6, 6) !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+#FORM2 .w-form-item .w-form-control::placeholder {
+  font-size: 16px !important;
+  font-family: Taviraj, serif !important;
+}
+
+#FORM2 .w-form-item {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+#FORM2 textarea.w-form-control {
+  padding-top: 8px !important;
+  line-height: 1.45 !important;
+  resize: none;
+}
+
+/* ==========================================================================
    THANK-YOU POPUP (after sending RSVP / wish): no cover photo, content centred,
    "Quay lại" button to close it.
    ========================================================================== */
@@ -907,24 +943,10 @@ body {
   padding: 0 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
   z-index: 10;
-}
-
-.lightbox-counter {
-  color: #f5f0eb;
-  font-family: "Times New Roman", serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-.lightbox-concept-tag {
-  color: #d4af37;
-  font-size: 13px;
-  font-weight: 500;
-  margin-left: 6px;
+  pointer-events: none;
 }
 
 .lightbox-close-btn {
@@ -938,6 +960,7 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  pointer-events: auto;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
@@ -1079,8 +1102,8 @@ body {
 .gallery-card {
   opacity: 0;
   will-change: opacity, transform;
-  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--gallery-delay, 1s);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--gallery-delay, 0.7s);
 }
 
 .gallery-card:nth-child(odd) {
@@ -1096,12 +1119,12 @@ body {
   transform: translate3d(0, 0, 0) !important;
 }
 
-/* 2. Sổ lưu bút (Wishes): Trượt lên nhẹ nhàng khi cuộn tới (delay 1s) */
+/* 2. Sổ lưu bút (Wishes): Trượt lên nhẹ nhàng khi cuộn tới */
 .guestbook-wrapper {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: 1s;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0.15s;
   will-change: opacity, transform;
 }
 
@@ -1113,7 +1136,7 @@ body {
 /* 3. Bức trên cùng Our Moments (#IMAGE83): trượt nhẹ từ trên xuống */
 #IMAGE83.w-animation > .w-image {
   animation-name: fadeInDown !important;
-  animation-duration: 1s !important;
+  animation-duration: 0.8s !important;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
   animation-iteration-count: 1;
 }
@@ -1127,8 +1150,8 @@ body {
 .w-animation > .w-line,
 .w-animation > .w-shape,
 .w-animation > .w-form {
-  animation-delay: var(--anim-delay, 1s) !important;
-  animation-duration: 1s !important;
+  animation-delay: var(--anim-delay, 0s) !important;
+  animation-duration: 0.8s !important;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 

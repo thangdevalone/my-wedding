@@ -3,14 +3,13 @@
 import { useEffect } from "react";
 
 /**
- * Sequential Staggered Scroll Animation Engine
+ * Intelligent Scroll Animation Engine
  *
- * Rules:
- * 1. "animation lần lượt chứ ko cùng 1 lúc": Elements don't all trigger at the exact same instant.
- * 2. "phần tử ở trên thì animation trước": Elements higher up on screen (smaller rect.top) animate first.
- * 3. "phần tử cùng hàng thì cùng animation sau 1 chút": Elements on the same row (similar top) animate left-to-right staggered by +120ms.
- * 4. Lower rows cascade down (+150ms per vertical step).
- * 5. Base delay starts at 1.0s (1000ms) for the first element in the intersecting cluster, satisfying the user's "delay 1s" request.
+ * Balance:
+ * 1. Slow reading scroll ("lướt chậm"): Triggers right at the bottom of viewport (rootMargin: -40px)
+ *    with a crisp, visible entrance animation so users clearly see elements swooping in!
+ * 2. Rapid flick / swipe ("lướt nhanh"): Velocity tracker immediately detects high-speed scrolling
+ *    and reveals visible elements instantly with delay = 0s to eliminate any blank white flashes.
  */
 export function useMotionScroll() {
   useEffect(() => {
@@ -23,18 +22,54 @@ export function useMotionScroll() {
     let pendingElements: HTMLElement[] = [];
     let batchTimeout: NodeJS.Timeout | null = null;
 
+    // Fast scroll velocity tracker
+    let lastScrollY = window.scrollY;
+    let lastScrollTime = Date.now();
+    let isFastScrolling = false;
+    let fastScrollTimeout: NodeJS.Timeout | null = null;
+
+    const onScroll = () => {
+      const now = Date.now();
+      const dt = now - lastScrollTime;
+      if (dt > 12) {
+        const dy = Math.abs(window.scrollY - lastScrollY);
+        const speed = dy / dt; // px/ms
+        if (speed > 0.75) {
+          isFastScrolling = true;
+          if (fastScrollTimeout) clearTimeout(fastScrollTimeout);
+          fastScrollTimeout = setTimeout(() => {
+            isFastScrolling = false;
+          }, 200);
+
+          // Fast scroll bypass: reveal in-viewport elements immediately so no blank white gap
+          animatedElements.forEach((el) => {
+            if (!el.classList.contains("w-animation")) {
+              const rect = el.getBoundingClientRect();
+              if (rect.top < window.innerHeight + 120 && rect.bottom > -50) {
+                el.style.setProperty("--anim-delay", "0s");
+                el.style.setProperty("animation-delay", "0s", "important");
+                el.classList.remove("w-animation-hidden");
+                el.classList.add("w-animation");
+                observer?.unobserve(el);
+              }
+            }
+          });
+        }
+        lastScrollY = window.scrollY;
+        lastScrollTime = now;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     const processBatch = (elementsToAnimate: HTMLElement[]) => {
       if (!elementsToAnimate.length) return;
 
-      // Filter out elements already animating/animated
       const valid = elementsToAnimate.filter(
         (el) => !el.classList.contains("w-animation")
       );
       if (!valid.length) return;
 
-      // Sort elements:
-      // 1. Elements higher up on screen (smaller rect.top) come first.
-      // 2. Elements on the same row (|rect.top - rect.top| <= 18px) are sorted left-to-right.
+      // Sort elements: top-to-bottom, then left-to-right for same row
       valid.sort((a, b) => {
         const rA = a.getBoundingClientRect();
         const rB = b.getBoundingClientRect();
@@ -44,9 +79,10 @@ export function useMotionScroll() {
         return rA.left - rB.left;
       });
 
-      const BASE_DELAY_MS = 1000; // 1.0s base delay
-      const ROW_STEP_MS = 150;    // +150ms for next lower row
-      const COL_STEP_MS = 120;    // +120ms for elements on the same row
+      // On slow scroll, start at 60ms so animation is clearly visible as it enters the screen!
+      const BASE_DELAY_MS = isFastScrolling ? 0 : 60;
+      const ROW_STEP_MS = isFastScrolling ? 25 : 140;
+      const COL_STEP_MS = isFastScrolling ? 20 : 110;
 
       let currentDelay = BASE_DELAY_MS;
       let prevTop: number | null = null;
@@ -63,7 +99,6 @@ export function useMotionScroll() {
 
         const delaySeconds = (currentDelay / 1000).toFixed(2) + "s";
 
-        // Apply staggered animation delay
         el.style.setProperty("--anim-delay", delaySeconds);
         el.style.setProperty("animation-delay", delaySeconds, "important");
 
@@ -75,11 +110,9 @@ export function useMotionScroll() {
           child.style.setProperty("animation-delay", delaySeconds, "important");
         });
 
-        // Trigger animation
         el.classList.remove("w-animation-hidden");
         el.classList.add("w-animation");
 
-        // Handle nested hidden elements (e.g. #SHAPE1 heart pulse inside calendar)
         el.querySelectorAll<HTMLElement>(".w-animation-hidden").forEach((nestedChild) => {
           nestedChild.classList.remove("w-animation-hidden");
           nestedChild.classList.add("w-animation");
@@ -99,26 +132,30 @@ export function useMotionScroll() {
         });
 
         if (intersecting.length > 0) {
-          pendingElements.push(...intersecting);
-          if (batchTimeout) clearTimeout(batchTimeout);
-          batchTimeout = setTimeout(() => {
-            const batch = pendingElements;
-            pendingElements = [];
-            processBatch(batch);
-          }, 30);
+          if (isFastScrolling) {
+            processBatch(intersecting);
+          } else {
+            pendingElements.push(...intersecting);
+            if (batchTimeout) clearTimeout(batchTimeout);
+            batchTimeout = setTimeout(() => {
+              const batch = pendingElements;
+              pendingElements = [];
+              processBatch(batch);
+            }, 15);
+          }
         }
       },
       {
         threshold: 0.05,
-        rootMargin: "80px 0px 80px 0px",
+        rootMargin: "0px 0px -40px 0px", // Triggers 40px inside the bottom of screen so animation is clearly visible!
       }
     );
 
-    // Initial check for elements in viewport on page load
+    // Initial load: reveal visible elements on screen
     const initialInView: HTMLElement[] = [];
     animatedElements.forEach((el) => {
       const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight + 80 && rect.bottom > -40) {
+      if (rect.top < window.innerHeight - 40 && rect.bottom > 0) {
         initialInView.push(el);
       } else {
         observer?.observe(el);
@@ -130,6 +167,8 @@ export function useMotionScroll() {
     }
 
     return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (fastScrollTimeout) clearTimeout(fastScrollTimeout);
       observer?.disconnect();
       if (batchTimeout) clearTimeout(batchTimeout);
     };

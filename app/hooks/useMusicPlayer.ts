@@ -36,19 +36,23 @@ export function useMusicPlayer(src: string) {
     };
 
     const addAutoPlayEvents = () => {
-      document.addEventListener("wheel", startMusicOnFirstGesture, { passive: true });
-      document.addEventListener("scroll", startMusicOnFirstGesture, { passive: true });
-      document.addEventListener("mousemove", startMusicOnFirstGesture, { passive: true });
+      document.addEventListener("click", startMusicOnFirstGesture, { passive: true });
+      document.addEventListener("touchend", startMusicOnFirstGesture, { passive: true });
+      document.addEventListener("pointerdown", startMusicOnFirstGesture, { passive: true });
       document.addEventListener("touchstart", startMusicOnFirstGesture, { passive: true });
       document.addEventListener("touchmove", startMusicOnFirstGesture, { passive: true });
+      document.addEventListener("scroll", startMusicOnFirstGesture, { passive: true });
+      document.addEventListener("wheel", startMusicOnFirstGesture, { passive: true });
     };
 
     const removeAutoPlayEvents = () => {
-      document.removeEventListener("wheel", startMusicOnFirstGesture);
-      document.removeEventListener("scroll", startMusicOnFirstGesture);
-      document.removeEventListener("mousemove", startMusicOnFirstGesture);
+      document.removeEventListener("click", startMusicOnFirstGesture);
+      document.removeEventListener("touchend", startMusicOnFirstGesture);
+      document.removeEventListener("pointerdown", startMusicOnFirstGesture);
       document.removeEventListener("touchstart", startMusicOnFirstGesture);
       document.removeEventListener("touchmove", startMusicOnFirstGesture);
+      document.removeEventListener("scroll", startMusicOnFirstGesture);
+      document.removeEventListener("wheel", startMusicOnFirstGesture);
     };
 
     addAutoPlayEvents();

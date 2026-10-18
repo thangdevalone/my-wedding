@@ -282,11 +282,15 @@ export default function PhotoGallery() {
         return rA.left - rB.left;
       });
 
-      const BASE_DELAY_MS = 1000; // 1.0s base delay as requested
-      const ROW_STEP_MS = 160;
-      const COL_STEP_MS = 120;
+      // When scrolling normally into the row:
+      // Start immediately with a crisp, noticeable stagger right before user's eyes!
+      // First card in row: 50ms (0.05s)
+      // Second card in same row: +140ms (0.19s)
+      // Next row: +180ms
+      const ROW_STEP_MS = 180;
+      const COL_STEP_MS = 140;
 
-      let currentDelay = BASE_DELAY_MS;
+      let currentDelay = 50;
       let prevTop: number | null = null;
 
       valid.forEach((card, idx) => {
@@ -322,19 +326,48 @@ export default function PhotoGallery() {
             const batch = pendingCards;
             pendingCards = [];
             processCardBatch(batch);
-          }, 35);
+          }, 15);
         }
       },
       {
         threshold: 0.05,
-        rootMargin: "0px 0px -40px 0px",
+        rootMargin: "0px 0px -30px 0px", // Triggers right when the card enters the viewport so animation is clearly visible!
       }
     );
+
+    // Fast scroll detection: if user swipes rapidly, immediately reveal cards to avoid blank screen
+    let lastScrollY = window.scrollY;
+    let lastScrollTime = Date.now();
+    const handleScroll = () => {
+      const now = Date.now();
+      const dt = now - lastScrollTime;
+      if (dt > 12) {
+        const dy = Math.abs(window.scrollY - lastScrollY);
+        const speed = dy / dt;
+        if (speed > 0.75) {
+          // Fast flick: reveal any cards within 150px immediately
+          cards.forEach((card) => {
+            if (!card.classList.contains("in-view")) {
+              const rect = card.getBoundingClientRect();
+              if (rect.top < window.innerHeight + 150 && rect.bottom > -50) {
+                card.style.setProperty("--gallery-delay", "0s");
+                card.style.transitionDelay = "0s";
+                card.classList.add("in-view");
+                observer.unobserve(card);
+              }
+            }
+          });
+        }
+        lastScrollY = window.scrollY;
+        lastScrollTime = now;
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     const initialInView: HTMLElement[] = [];
     cards.forEach((card) => {
       const rect = card.getBoundingClientRect();
-      if (rect.top < window.innerHeight - 40 && rect.bottom > 0) {
+      if (rect.top < window.innerHeight - 30 && rect.bottom > 0) {
         initialInView.push(card);
       } else {
         observer.observe(card);
@@ -347,6 +380,7 @@ export default function PhotoGallery() {
 
     return () => {
       observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
       if (timeout) clearTimeout(timeout);
     };
   }, []);
@@ -396,18 +430,11 @@ export default function PhotoGallery() {
             }
           }}
         >
-          {/* Top Bar with Counter & Close */}
+          {/* Top Bar with Close */}
           <div
             className="lightbox-topbar"
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="lightbox-counter">
-              {lightboxIndex + 1} / {GALLERY_PHOTOS.length}
-              <span className="lightbox-concept-tag">
-                • {GALLERY_PHOTOS[lightboxIndex].conceptName}
-              </span>
-            </span>
-
             <button
               type="button"
               className="lightbox-close-btn"

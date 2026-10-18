@@ -38,9 +38,10 @@ export async function generateMetadata({
       locale: "vi_VN",
       images: [
         {
-          url: "/images/og-share.jpg",
+          url: "https://vochongthanglan.online/images/og-share.jpg",
           width: 1200,
           height: 630,
+          type: "image/jpeg",
           alt: title,
         },
       ],
@@ -49,7 +50,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: ["/images/og-share.jpg"],
+      images: ["https://vochongthanglan.online/images/og-share.jpg"],
     },
   };
 }

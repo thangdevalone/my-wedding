@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     locale: "vi_VN",
     images: [
       {
-        url: "/images/og-share.jpg",
+        url: "https://vochongthanglan.online/images/og-share.jpg",
         width: 1200,
         height: 630,
         alt: "Quang Thắng & Tường Lan - Thiệp Cưới",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Quang Thắng & Tường Lan - Thiệp Cưới",
     description: "Thân mời bạn tới dự lễ thành hôn của chúng mình!",
-    images: ["/images/og-share.jpg"],
+    images: ["https://vochongthanglan.online/images/og-share.jpg"],
   },
 };
 
@@ -59,7 +59,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){var d=document.documentElement;function f(){var w=window.innerWidth;var z=Math.min(1,w/420);d.style.setProperty('--page-zoom',z.toFixed(4));}f();window.addEventListener('resize',f);window.addEventListener('orientationchange',f);})();",
+              "(function(){var d=document.documentElement;function f(){var w=window.innerWidth;var z=Math.min(1,w/420);d.style.setProperty('--page-zoom',z.toFixed(4));var el=document.querySelector('.w-wraper');if(el){el.style.zoom=z.toFixed(4);}}f();window.addEventListener('resize',f);window.addEventListener('orientationchange',f);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',f);}})();",
           }}
         />
         <meta httpEquiv="Cache-Control" content="no-cache" />
