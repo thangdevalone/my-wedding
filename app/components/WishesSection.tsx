@@ -79,11 +79,11 @@ export default function WishesSection({
           }
         });
       },
-      { threshold: 0.01, rootMargin: "450px 0px 450px 0px" }
+      { threshold: 0.02, rootMargin: "0px 0px -30px 0px" }
     );
 
     const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight + 250 && rect.bottom > -80) {
+    if (rect.top < window.innerHeight - 30 && rect.bottom > 0) {
       el.classList.add("in-view");
     } else {
       observer.observe(el);

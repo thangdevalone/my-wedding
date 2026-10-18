@@ -57,7 +57,7 @@ export default function FloatingHearts() {
 
     const hearts: Heart[] = [];
     const isMobile = width < 600;
-    const maxHearts = isMobile ? 26 : 42;
+    const maxHearts = isMobile ? 16 : 36;
 
     const createHeart = (initialY?: number): Heart => {
       const size = Math.random() * (isMobile ? 12 : 16) + (isMobile ? 9 : 11);
@@ -156,7 +156,9 @@ export default function FloatingHearts() {
 
       if (clientX === undefined || clientY === undefined) return;
 
-      const burstCount = Math.floor(Math.random() * 3) + 4; // 4 to 6 hearts
+      const burstCount = isMobile
+        ? Math.floor(Math.random() * 2) + 2 // 2 to 3 hearts on mobile tap
+        : Math.floor(Math.random() * 3) + 4; // 4 to 6 hearts on desktop
       for (let i = 0; i < burstCount; i++) {
         const size = Math.random() * 10 + 10;
         const colorBase =

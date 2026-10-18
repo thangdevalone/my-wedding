@@ -34,18 +34,19 @@ export function useMotionScroll() {
       if (dt > 12) {
         const dy = Math.abs(window.scrollY - lastScrollY);
         const speed = dy / dt; // px/ms
-        if (speed > 0.75) {
+        if (speed > 2.5) {
           isFastScrolling = true;
           if (fastScrollTimeout) clearTimeout(fastScrollTimeout);
           fastScrollTimeout = setTimeout(() => {
             isFastScrolling = false;
-          }, 200);
+          }, 180);
 
-          // Fast scroll bypass: reveal in-viewport elements immediately so no blank white gap
+          // Fast scroll bypass: only reveal elements already visible inside the viewport
+          // Never reveal elements that are still off-screen below the viewport!
           animatedElements.forEach((el) => {
             if (!el.classList.contains("w-animation")) {
               const rect = el.getBoundingClientRect();
-              if (rect.top < window.innerHeight + 120 && rect.bottom > -50) {
+              if (rect.top < window.innerHeight - 10 && rect.bottom > 0) {
                 el.style.setProperty("--anim-delay", "0s");
                 el.style.setProperty("animation-delay", "0s", "important");
                 el.classList.remove("w-animation-hidden");

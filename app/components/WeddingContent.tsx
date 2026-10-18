@@ -955,8 +955,8 @@ export default function WeddingContent({
                 <div className="w-image-background"></div>
               </div>
             </div>
-            <div id="HEADLINE129" className="w-element">
-              <h3 className="w-headline">
+            <div id="HEADLINE129" className="w-element w-animation-hidden">
+              <h3 className="w-headline w-transition">
                 Hẹn gặp bạn trong ngày đặc biệt nhất của chúng mình.
                 <br />
                 Sẽ thật hạnh phúc khi có bạn ở đó, cùng sẻ chia niềm vui và
@@ -964,8 +964,8 @@ export default function WeddingContent({
                 <br />
               </h3>{" "}
             </div>
-            <div id="HEADLINE130" className="w-element">
-              <h3 className="w-headline">
+            <div id="HEADLINE130" className="w-element w-animation-hidden">
+              <h3 className="w-headline w-transition">
                 Thank you!
                 <br />
               </h3>{" "}
