@@ -38,8 +38,10 @@ export async function generateMetadata({
       locale: "vi_VN",
       images: [
         {
-          url: "/images/gallery-02.jpg",
-          alt: "Quang Thắng & Tường Lan",
+          url: "/images/og-share.jpg",
+          width: 1200,
+          height: 630,
+          alt: title,
         },
       ],
     },
@@ -47,7 +49,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: ["/images/gallery-02.jpg"],
+      images: ["/images/og-share.jpg"],
     },
   };
 }

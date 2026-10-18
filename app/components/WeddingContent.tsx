@@ -2,8 +2,17 @@
 
 import { useMotionScroll } from "../hooks/useMotionScroll";
 import { useWeddingInteractions } from "../hooks/useWeddingInteractions";
+import PhotoGallery from "./PhotoGallery";
+import WishesSection from "./WishesSection";
+import type { WishItem } from "../lib/db";
 
-export default function WeddingContent({ guestName = "" }: { guestName?: string }) {
+export default function WeddingContent({
+  guestName = "",
+  initialWishes = [],
+}: {
+  guestName?: string;
+  initialWishes?: WishItem[];
+}) {
   // Long names get a slightly smaller script font so they stay on one line
   const guestFontSize = guestName.length > 13 ? Math.max(15, Math.floor((23 * 13) / guestName.length)) : undefined;
 
@@ -33,25 +42,25 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
                 <div className="w-image-background"></div>
               </div>
             </div>
-            <div id="HEADLINE128" className="w-element w-animation-hidden">
+            <div id="HEADLINE128" className="w-element w-animation">
               <h1 className="w-headline">Quang Thắng &amp; Tường Lan</h1>{" "}
             </div>
-            <div id="HEADLINE134" className="w-element w-animation-hidden">
+            <div id="HEADLINE134" className="w-element w-animation">
               <h3 className="w-headline">
                 SAVE
                 <br />
               </h3>{" "}
             </div>
-            <div id="HEADLINE135" className="w-element w-animation-hidden">
+            <div id="HEADLINE135" className="w-element w-animation">
               <h3 className="w-headline">DATE</h3>{" "}
             </div>
-            <div id="HEADLINE136" className="w-element w-animation-hidden">
+            <div id="HEADLINE136" className="w-element w-animation">
               <h3 className="w-headline">
                 the
                 <br />
               </h3>{" "}
             </div>
-            <div id="HEADLINE137" className="w-element w-animation-hidden">
+            <div id="HEADLINE137" className="w-element w-animation">
               <h3 className="w-headline">Quang Thắng &amp; Tường Lan</h3>{" "}
             </div>
           </div>
@@ -100,7 +109,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
             </div>
             <div id="GROUP76" className="w-element">
               <div className="w-group">
-                <div id="IMAGE118" className="w-element">
+                <div id="IMAGE118" className="w-element w-animation-hidden">
                   <div className="w-image">
                     <div className="w-image-background"></div>
                   </div>
@@ -361,7 +370,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
                       className="w-element w-animation-hidden"
                     >
                       <h3 className="w-headline w-transition">
-                        16:00, thứ bảy
+                        10:00, thứ bảy
                       </h3>{" "}
                     </div>
                   </div>
@@ -560,36 +569,26 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
             </div>
             <div id="HEADLINE81" className="w-element w-animation-hidden">
               <h3 className="w-headline w-transition">
-                <span style={{ fontWeight: "bold" }}>14:00</span>
-                <br />
-                rước dâu
-                <br />
+                <span className="timeline-time">16:00 · 27/11</span>
+                <span className="timeline-title">ĐẠI TIỆC</span>
               </h3>{" "}
             </div>
             <div id="HEADLINE82" className="w-element w-animation-hidden">
               <h3 className="w-headline w-transition">
-                <span style={{ fontWeight: "bold" }}>17:00</span>
-                <br />
-                lễ thành hôn
-                <br />
+                <span className="timeline-time">19:00 · 27/11</span>
+                <span className="timeline-title">ÂM NHẠC DJ</span>
               </h3>{" "}
             </div>
             <div id="HEADLINE83" className="w-element w-animation-hidden">
               <h3 className="w-headline w-transition">
-                <span style={{ fontWeight: "bold" }}>
-                  17:30
-                  <br />
-                </span>
-                khai tiệc
-                <br />
+                <span className="timeline-time">10:00 · 28/11</span>
+                <span className="timeline-title">ĐÓN DÂU</span>
               </h3>{" "}
             </div>
             <div id="HEADLINE84" className="w-element w-animation-hidden">
               <h3 className="w-headline w-transition">
-                <span style={{ fontWeight: "bold" }}>19:00</span>
-                <br />
-                âm nhạc
-                <br />
+                <span className="timeline-time">13:00 · 28/11</span>
+                <span className="timeline-title">LỄ THÀNH HÔN</span>
               </h3>{" "}
             </div>
             <div id="IMAGE88" className="w-element w-animation-hidden">
@@ -732,7 +731,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
                 <div className="w-image-background"></div>
               </div>
             </div>
-            <div id="IMAGE83" className="w-element">
+            <div id="IMAGE83" className="w-element w-animation-hidden">
               <div className="w-image">
                 <div className="w-image-background"></div>
               </div>
@@ -781,79 +780,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
         <div id="SECTION7" className="w-section">
           <div className="w-section-background"></div>
           <div className="w-container">
-            <div id="GALLERY1" className="w-element">
-              <div className="w-gallery w-gallery-bottom">
-                <div className="w-gallery-view">
-                  <div className="w-gallery-view-arrow w-gallery-view-arrow-left"></div>
-                  <div className="w-gallery-view-arrow w-gallery-view-arrow-right"></div>
-                  <div
-                    className="w-gallery-view-item selected"
-                    data-index="0"
-                  ></div>
-                  <div className="w-gallery-view-item" data-index="1"></div>
-                  <div className="w-gallery-view-item" data-index="2"></div>
-                  <div className="w-gallery-view-item" data-index="3"></div>
-                  <div className="w-gallery-view-item" data-index="4"></div>
-                  <div className="w-gallery-view-item" data-index="5"></div>
-                  <div className="w-gallery-view-item" data-index="6"></div>
-                  <div className="w-gallery-view-item" data-index="7"></div>
-                  <div className="w-gallery-view-item" data-index="8"></div>
-                  <div className="w-gallery-view-item" data-index="9"></div>
-                </div>
-                <div className="w-gallery-control">
-                  <div className="w-gallery-control-box">
-                    <div
-                      className="w-gallery-control-item selected"
-                      data-index="0"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="1"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="2"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="3"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="4"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="5"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="6"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="7"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="8"
-                    ></div>
-                    <div
-                      className="w-gallery-control-item"
-                      data-index="9"
-                    ></div>
-                  </div>
-                  <div className="w-gallery-control-arrow w-gallery-control-arrow-left"></div>
-                  <div className="w-gallery-control-arrow w-gallery-control-arrow-right"></div>
-                </div>
-              </div>
-            </div>
-            <div id="HEADLINE97" className="w-element w-animation-hidden">
-              <h3 className="w-headline">CAptuRed With Love</h3>{" "}
-            </div>
-            <div id="PARAGRAPH1" className="w-element w-animation-hidden">
-              <div className="w-paragraph w-transition">OuR&nbsp; AlbuM</div>
-            </div>
+            <PhotoGallery />
           </div>
         </div>
         <div id="SECTION8" className="w-section">
@@ -868,8 +795,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
               <div className="w-group">
                 <div id="HEADLINE94" className="w-element w-animation-hidden">
                   <h3 className="w-headline w-transition">
-                    Vui lòng xác nhận sự tham dự của bạn để chúng mình <br />
-                    chuẩn bị đón tiếp một cách chu đáo nhất.
+                    Gửi lời chúc đến chúng mình nhé!
                     <br />
                     Trân trọng cảm ơn!
                     <br />
@@ -886,17 +812,6 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
                     method="post"
                     className="w-form"
                   >
-                    <div id="BUTTON2" className="w-element">
-                      <div className="w-button">
-                        <div className="w-button-background"></div>
-                        <div
-                          id="BUTTON_TEXT2"
-                          className="w-element w-button-headline"
-                        >
-                          <p className="w-headline">XÁC NHẬN</p>{" "}
-                        </div>
-                      </div>
-                    </div>
                     <div id="FORM_ITEM2" className="w-element">
                       <div className="w-form-item-container">
                         <div className="w-form-item-background"></div>
@@ -914,76 +829,30 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
                         </div>
                       </div>
                     </div>
-                    <div id="FORM_ITEM4" className="w-element">
-                      <div className="w-form-item-container">
-                        <div className="w-form-item-background"></div>
-                        <div className="w-form-item">
-                          <select
-                            tabIndex={3}
-                            name="form_item8"
-                            className="w-form-control w-form-control-select"
-                            data-selected=""
-                          >
-                            <option value="">Xác nhận tham dự?</option>
-                            <option value="Tôi sẽ tham dự">
-                              Tôi sẽ tham dự
-                            </option>
-                            <option value="Xin lỗi, tôi không thể tham dự">
-                              Xin lỗi, tôi không thể tham dự
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div id="FORM_ITEM5" className="w-element">
-                      <div className="w-form-item-container">
-                        <div className="w-form-item-background"></div>
-                        <div className="w-form-item">
-                          <input
-                            autoComplete="off"
-                            tabIndex={4}
-                            name="form_item9"
-                            className="w-form-control"
-                            type="text"
-                            placeholder="Bạn có tham dự cùng ai khác không?"
-                            defaultValue=""
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div id="FORM_ITEM6" className="w-element">
-                      <div className="w-form-item-container">
-                        <div className="w-form-item-background"></div>
-                        <div className="w-form-item">
-                          <select
-                            tabIndex={5}
-                            name="form_item10"
-                            className="w-form-control w-form-control-select"
-                            data-selected=""
-                          >
-                            <option value="">Bạn là khách mời của ai?</option>
-                            <option value="Khách mời cô dâu">
-                              Khách mời cô dâu
-                            </option>
-                            <option value="Khách mời chú rể">
-                              Khách mời chú rể
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
                     <div id="FORM_ITEM3" className="w-element">
                       <div className="w-form-item-container">
                         <div className="w-form-item-background"></div>
                         <div className="w-form-item">
                           <textarea
-                            tabIndex={6}
+                            tabIndex={2}
                             name="message"
+                            required
                             maxLength={500}
                             className="w-form-control"
                             placeholder="Gửi lời chúc đến cô dâu chú rể..."
                             defaultValue=""
                           />
+                        </div>
+                      </div>
+                    </div>
+                    <div id="BUTTON2" className="w-element">
+                      <div className="w-button">
+                        <div className="w-button-background"></div>
+                        <div
+                          id="BUTTON_TEXT2"
+                          className="w-element w-button-headline"
+                        >
+                          <p className="w-headline">XÁC NHẬN</p>{" "}
                         </div>
                       </div>
                     </div>
@@ -1004,6 +873,8 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
             </div>
           </div>
         </div>
+        {/* Sổ lưu bút - Danh sách lời chúc trước footer */}
+        <WishesSection initialWishes={initialWishes} />
         <div id="SECTION9" className="w-section">
           <div className="w-section-background"></div>
           <div className="w-container">
@@ -1084,7 +955,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
                 <div className="w-image-background"></div>
               </div>
             </div>
-            <div id="HEADLINE129" className="w-element w-animation-hidden">
+            <div id="HEADLINE129" className="w-element">
               <h3 className="w-headline">
                 Hẹn gặp bạn trong ngày đặc biệt nhất của chúng mình.
                 <br />
@@ -1093,7 +964,7 @@ export default function WeddingContent({ guestName = "" }: { guestName?: string 
                 <br />
               </h3>{" "}
             </div>
-            <div id="HEADLINE130" className="w-element w-animation-hidden">
+            <div id="HEADLINE130" className="w-element">
               <h3 className="w-headline">
                 Thank you!
                 <br />

@@ -67,37 +67,30 @@ export async function POST(req: NextRequest) {
 
   const name = cleanText(body.name, 60);
   const message = cleanText(body.message, 500, true);
-  const attendanceRaw = cleanText(body.attendance, 60);
-  const sideRaw = cleanText(body.side, 60);
-  const companions = cleanText(body.companions, 120);
   const invite = cleanInviteName(body.invite);
 
   if (!name) return fail("name_required", 400);
+  if (!message) return fail("message_required", 400);
 
-  // Block swearing / spam links in anything that can be shown publicly
-  if ([name, message, companions].some((t) => checkContent(t))) return fail("inappropriate", 422);
-
-  const attendance = (ATTENDANCE_OPTIONS as readonly string[]).includes(attendanceRaw) ? attendanceRaw : "";
-  const side = (SIDE_OPTIONS as readonly string[]).includes(sideRaw) ? sideRaw : "";
+  // Block swearing / spam links in public wish
+  if ([name, message].some((t) => checkContent(t))) return fail("inappropriate", 422);
 
   if (rateLimited(clientIp(req))) return fail("too_many_requests", 429);
 
   const info = getDb()
     .prepare(
       `INSERT INTO rsvps (name, message, attendance, companions, side, invite)
-       VALUES (@name, @message, @attendance, @companions, @side, @invite)`
+       VALUES (@name, @message, '', '', '', @invite)`
     )
-    .run({ name, message, attendance, companions, side, invite });
+    .run({ name, message, invite });
 
   const newId = Number(info.lastInsertRowid);
-  const wish = message
-    ? {
-        id: newId,
-        name,
-        message,
-        createdAt: new Date().toISOString(),
-      }
-    : null;
+  const wish = {
+    id: newId,
+    name,
+    message,
+    createdAt: new Date().toISOString(),
+  };
 
   return NextResponse.json({ ok: true, id: newId, wish }, { status: 201 });
 }

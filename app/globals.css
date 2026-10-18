@@ -143,9 +143,15 @@ body {
 /* ==========================================================================
    NOVEMBER 2026 CALENDAR GRID & WEDDING DATE ALIGNMENT
    ========================================================================== */
+#HEADLINE3 > .w-headline {
+  font-size: 36px !important;
+}
+
 #GROUP70 {
   height: 180px !important;
   overflow: visible !important;
+  transform: scale(1.18) !important;
+  transform-origin: top center !important;
 }
 
 #HEADLINE11 { top: 25.43px !important; left: 221.94px !important; }
@@ -193,14 +199,16 @@ body {
   font-weight: bold !important;
 }
 
-/* Quote formatting under couple's photo: perfectly centered 2 lines */
+/* Quote formatting under couple's photo: larger text & centered 2 lines */
 #HEADLINE116 {
-  width: 350px !important;
-  left: 35px !important;
+  width: 380px !important;
+  left: 20px !important;
 }
 
 #HEADLINE116 > .w-headline {
-  line-height: 1.7 !important;
+  font-size: 14.5px !important;
+  line-height: 1.75 !important;
+  font-weight: 500 !important;
 }
 
 /* ==========================================================================
@@ -286,210 +294,322 @@ body {
    RSVP FORM: extra "lời chúc" textarea (FORM_ITEM3) below the 4 original fields.
    The button and the section grow by the same amount (+93px).
    ========================================================================== */
-#FORM_ITEM3 {
-  top: 180px !important;
+#FORM_ITEM2 {
+  top: 0px !important;
   left: 0 !important;
   width: 357.25px !important;
-  height: 80px !important;
+  height: 38px !important;
+}
+#FORM_ITEM2 .w-form-item-container {
+  height: 38px !important;
+}
+#FORM_ITEM2 input.w-form-control {
+  height: 36px !important;
+  padding: 0 12px !important;
+}
+#FORM_ITEM3 {
+  top: 48px !important;
+  left: 0 !important;
+  width: 357.25px !important;
+  height: 95px !important;
 }
 #FORM_ITEM3 .w-form-item-container,
 #FORM_ITEM3 .w-form-item-background {
   border-radius: 0 !important;
+  height: 95px !important;
 }
 #FORM_ITEM3 textarea.w-form-control {
-  padding: 8px 5px !important;
-  line-height: 1.5;
-  resize: none;
+  height: 85px !important;
+  padding: 10px 12px !important;
+  line-height: 1.5 !important;
+  resize: none !important;
 }
-#BUTTON2 { top: 275px !important; }
-#GROUP44 { height: 399px !important; }
+#BUTTON2 {
+  position: absolute !important;
+  top: 155px !important;
+  left: 0px !important;
+  width: 357.25px !important;
+  height: 42px !important;
+  cursor: pointer !important;
+}
+#BUTTON2 > .w-button {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgb(127, 6, 6) !important;
+  border-radius: 0px !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+#BUTTON2 .w-button-background {
+  display: none !important;
+}
+#BUTTON_TEXT2 {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+#BUTTON_TEXT2 > .w-headline {
+  width: 100% !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 42px !important;
+  font-family: Taviraj, serif !important;
+  font-size: 19px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+  color: rgb(255, 255, 255) !important;
+}
+#FORM2 {
+  top: 75px !important;
+  left: 16.375px !important;
+  width: 357.25px !important;
+  height: 205px !important;
+}
+#HEADLINE94 {
+  top: 0px !important;
+  left: 0px !important;
+  width: 390px !important;
+}
+#HEADLINE94 > .w-headline {
+  text-align: center !important;
+  font-family: Taviraj, serif !important;
+}
+#GROUP44 {
+  top: 36px !important;
+  left: 15px !important;
+  width: 390px !important;
+  height: 290px !important;
+}
 #SECTION8,
-#IMAGE59 { height: 507px !important; }
+#IMAGE59 {
+  height: 365px !important;
+}
 
 /* ==========================================================================
-   WISHES DOCK - live-comment feed pinned to the bottom (1/4 screen height).
-   Click-through so it never blocks the card; the round button hides it.
+   WISHES LIST SECTION - SỔ LƯU BÚT ĐỒNG BỘ 100% VỚI PHONG CÁCH THIỆP CƯỚI
    ========================================================================== */
-.wishes-dock {
-  position: fixed;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: min(100vw, 420px);
-  height: 25vh;
-  height: 25dvh;
-  max-height: 25dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
-  box-sizing: border-box;
-  pointer-events: none;
-  z-index: 90000050;
-  font-family: Taviraj, serif;
-  color: #fff;
-}
-.wishes-dock[data-open="false"] {
-  height: auto;
-  max-height: none;
-}
-.wishes-feed {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  margin-bottom: 8px;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 35%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 35%);
-}
-.wishes-track {
-  margin: auto 0 0; /* sit at bottom if not scrolling */
-  display: flex;
-  flex-direction: column;
-}
-.wishes-feed[data-scrolling="true"] .wishes-track {
-  margin: 0;
-  animation: wishes-scroll var(--wishes-dur, 25s) linear infinite;
-  will-change: transform;
-}
-.wishes-feed:hover .wishes-track,
-.wishes-feed:active .wishes-track {
-  animation-play-state: paused;
-}
-.wishes-group {
-  display: flex;
-  flex-direction: column;
-}
-.wishes-spacer {
-  flex: none;
-  height: 130px; /* viewport height so group A fully scrolls out before group B starts */
-}
-@keyframes wishes-scroll {
-  from { transform: translateY(0); }
-  to { transform: translateY(-50%); }
-}
-.wish-bubble,
-.wishes-empty {
-  width: fit-content;
-  max-width: calc(100% - 56px); /* keeps the right corner free for the music button */
-  padding: 6px 13px;
-  border-radius: 14px;
-  background: rgba(165, 45, 60, 0.45);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-  font-size: 13px;
-  line-height: 1.38;
-  white-space: pre-line;
-  overflow-wrap: anywhere;
-}
-.wish-bubble {
-  margin: 0 0 5px;
-}
-.wish-bubble b { font-weight: 700; color: #fff; }
-.wishes-empty { margin: auto 0 0; }
-
-.wishes-bar {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  /* Leaves room for the music toggle (50px + 16px right margin = 66px) */
-  padding-right: 66px;
-  pointer-events: none;
-}
-.wishes-toggle,
-.wishes-pill {
-  pointer-events: auto;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  background: linear-gradient(
-    135deg,
-    rgba(180, 52, 68, 0.52),
-    rgba(150, 32, 48, 0.46)
-  );
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  font: inherit;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-}
-.wishes-toggle:hover,
-.wishes-pill:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(195, 62, 78, 0.62),
-    rgba(165, 42, 58, 0.56)
-  );
-}
-.wishes-toggle {
-  position: relative;
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 50px;
-  height: 50px;
-  padding: 0;
-  border-radius: 50%;
-}
-.wishes-pill {
-  flex: 1;
-  min-width: 0;
-  height: 50px;
-  padding: 0 18px;
-  border-radius: 999px;
-  font-size: 15px;
-  text-align: left;
-  color: rgba(255, 255, 255, 0.95);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.wishes-toggle:active,
-.wishes-pill:active { transform: scale(0.96); }
-.wishes-count {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border-radius: 10px;
-  background: #fff;
-  color: rgb(155, 35, 50);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 20px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+.guestbook-section {
+  position: relative !important;
+  width: 420px !important;
+  height: auto !important;
+  min-height: auto !important;
+  background-color: #fdfaf6 !important;
+  background-image: url("/images/bg-paper-texture.webp") !important;
+  background-size: 420px auto !important;
+  background-repeat: repeat-y !important;
+  padding: 15px 16px 25px 16px !important;
+  box-sizing: border-box !important;
 }
 
-@media (min-width: 769px) {
-  .wishes-dock {
-    padding: 0 20px calc(20px + env(safe-area-inset-bottom, 0px));
-  }
-  .wishes-bar {
-    gap: 12px;
-    padding-right: 74px; /* 54px music button + 20px right margin */
-  }
-  .wishes-toggle {
-    width: 54px;
-    height: 54px;
-  }
-  .wishes-pill {
-    height: 54px;
-    padding: 0 22px;
-    font-size: 15.5px;
-  }
+.guestbook-section .w-container {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
 }
-@media (prefers-reduced-motion: reduce) {
-  .wishes-feed[data-scrolling="true"] .wishes-track { animation: none; }
+
+.guestbook-wrapper {
+  width: 357.25px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+.guestbook-header {
+  text-align: center !important;
+  margin-bottom: 12px !important;
+}
+
+.guestbook-title {
+  font-family: Taviraj, serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgb(127, 6, 6) !important;
+  margin: 0 0 6px 0 !important;
+}
+
+.guestbook-line {
+  width: 48px !important;
+  height: 1px !important;
+  background: rgba(127, 6, 6, 0.4) !important;
+  margin: 0 auto !important;
+}
+
+.guestbook-empty {
+  font-family: Taviraj, serif !important;
+  font-size: 13.5px !important;
+  font-style: italic !important;
+  color: rgb(127, 6, 6) !important;
+  text-align: center !important;
+  padding: 16px 8px !important;
+  margin: 0 !important;
+  line-height: 1.5 !important;
+}
+
+.guestbook-list {
+  width: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+}
+
+.guestbook-item {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(127, 6, 6, 0.3) !important;
+  border-radius: 0px !important;
+  padding: 10px 14px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 1px 4px rgba(127, 6, 6, 0.04) !important;
+}
+
+.guestbook-more-btn {
+  width: 100% !important;
+  margin-top: 8px !important;
+  padding: 9px 16px !important;
+  background: transparent !important;
+  border: 1px solid rgb(127, 6, 6) !important;
+  border-radius: 0px !important;
+  color: rgb(127, 6, 6) !important;
+  font-family: Taviraj, serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.guestbook-more-btn:hover {
+  background: rgb(127, 6, 6) !important;
+  color: #ffffff !important;
+}
+
+.guestbook-item-header {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  border-bottom: 1px dashed rgba(127, 6, 6, 0.15) !important;
+  padding-bottom: 3px !important;
+  margin-bottom: 5px !important;
+}
+
+.guestbook-author {
+  font-family: Taviraj, serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: rgb(127, 6, 6) !important;
+}
+
+.guestbook-time {
+  font-family: Taviraj, serif !important;
+  font-size: 11px !important;
+  color: #8a786f !important;
+}
+
+.guestbook-message {
+  font-family: Taviraj, serif !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  color: #332520 !important;
+  margin: 0 !important;
+  white-space: pre-line !important;
+  word-break: break-word !important;
+}
+
+/* ==========================================================================
+   FOOTER SECTION (#SECTION9) - HẸN GẶP BẠN & THANK YOU CỦA THIỆP
+   ========================================================================== */
+#SECTION9 {
+  height: 359.216px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+#SECTION9 .w-container {
+  height: 359.216px !important;
+  position: relative !important;
+}
+
+#IMAGE84 {
+  width: 420px !important;
+  height: 359.216px !important;
+  top: 0px !important;
+  left: 0px !important;
+  position: absolute !important;
+}
+
+#IMAGE84 > .w-image {
+  filter: brightness(70%) !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#IMAGE84 > .w-image > .w-image-background {
+  width: 420px !important;
+  height: 630px !important;
+  top: -118px !important;
+  left: -1px !important;
+  background-image: url("/images/photo-05.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+#HEADLINE129 {
+  width: 374px !important;
+  top: 195px !important;
+  left: 23px !important;
+  position: absolute !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  z-index: 10 !important;
+}
+
+#HEADLINE129 > .w-headline {
+  font-family: Taviraj, serif !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: rgb(255, 255, 255) !important;
+  text-align: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#HEADLINE130 {
+  width: 325px !important;
+  top: 290px !important;
+  left: 47.5px !important;
+  position: absolute !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  z-index: 10 !important;
+}
+
+#HEADLINE130 > .w-headline {
+  font-family: "QkVZTEUEVSRkVDVElPTiSRUdVTEFSLlRURg", cursive !important;
+  font-size: 32px !important;
+  line-height: 1.4 !important;
+  color: rgb(255, 255, 255) !important;
+  text-align: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* ==========================================================================
@@ -657,4 +777,564 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .wish-bubble[data-fresh] { animation: none; }
+}
+
+/* ==========================================================================
+   HERO TYPOGRAPHY & FONT PRELOAD OPTIMIZATIONS (ZERO FOIT / FLASH)
+   ========================================================================== */
+#HEADLINE136 > .w-headline {
+  font-family: "MUZUViWSVAtSElHSCTUElSSVRFRCPVEY", "Playfair Display", "Times New Roman", cursive, serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+#HEADLINE134 > .w-headline,
+#HEADLINE135 > .w-headline {
+  font-family: "RmyZXNLVJlZVsYXIudHRm", "Playfair Display", "Times New Roman", serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+#HEADLINE137 > .w-headline {
+  font-family: "Taviraj", "Playfair Display", Georgia, serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+#HEADLINE142 > .w-headline,
+#HEADLINE143 > .w-headline {
+  font-family: "Playfair Display", Georgia, serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   WEDDING PHOTO GALLERY - RESPONSIVE 2-COLUMN GRID & LUXURY LIGHTBOX
+   ========================================================================== */
+#SECTION7 {
+  height: auto !important;
+  min-height: auto !important;
+  padding: 0 !important;
+  position: relative !important;
+}
+
+#SECTION7 .w-container {
+  height: auto !important;
+  min-height: auto !important;
+  position: relative !important;
+  width: 420px !important;
+  max-width: 100% !important;
+}
+
+.wedding-gallery-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 2-Column Mobile Grid: Seamless edge-to-edge, zero gap, zero border-radius */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 !important;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.gallery-card {
+  position: relative;
+  border-radius: 0 !important;
+  overflow: hidden;
+  box-shadow: none !important;
+  border: none !important;
+  background: #1a1a1a;
+  cursor: pointer;
+  aspect-ratio: 2 / 3;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gallery-card:active {
+  opacity: 0.92;
+}
+
+.gallery-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 0 !important;
+  overflow: hidden;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 0 !important;
+}
+
+/* Fullscreen Lightbox */
+.wedding-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999999;
+  background: rgba(8, 8, 8, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  animation: lightboxFadeIn 0.25s ease-out;
+}
+
+@keyframes lightboxFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 10;
+}
+
+.lightbox-counter {
+  color: #f5f0eb;
+  font-family: "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.lightbox-concept-tag {
+  color: #d4af37;
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.lightbox-close-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #ffffff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lightbox-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.lightbox-content {
+  max-width: 95vw;
+  max-height: 88vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-img {
+  max-width: 95vw;
+  max-height: 88vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  animation: lightboxZoomIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes lightboxZoomIn {
+  from { transform: scale(0.96); opacity: 0.5; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.lightbox-prev {
+  left: 16px;
+}
+
+.lightbox-next {
+  right: 16px;
+}
+
+@media (max-width: 600px) {
+  .lightbox-nav {
+    width: 38px;
+    height: 38px;
+  }
+  .lightbox-prev {
+    left: 8px;
+  }
+  .lightbox-next {
+    right: 8px;
+  }
+}
+
+/* ==========================================================================
+   OUR MOMENTS (SECTION 6) - OPTIMIZED 5126 (TOP), 5329 (RIGHT), 4927 (BOTTOM)
+   ========================================================================== */
+#IMAGE83 > .w-image > .w-image-background {
+  width: 100% !important;
+  height: 100% !important;
+  top: 0px !important;
+  left: 0px !important;
+  background-image: url("/images/moments-5126.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+#IMAGE76 {
+  width: 122px !important;
+  height: 111px !important;
+  left: 280px !important;
+}
+
+#IMAGE76 > .w-image > .w-image-background {
+  width: 100% !important;
+  height: 100% !important;
+  top: 0px !important;
+  left: 0px !important;
+  background-image: url("/images/moments-5329.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+#IMAGE82 > .w-image > .w-image-background {
+  width: 100% !important;
+  height: 100% !important;
+  top: 0px !important;
+  left: 0px !important;
+  background-image: url("/images/moments-4927.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+/* ==========================================================================
+   SECTION 3 - TWO HEARTS, ONE LOVE (IMAGE80 replaced with DSC_5063)
+   ========================================================================== */
+#IMAGE80 > .w-image > .w-image-background {
+  width: 100% !important;
+  height: 100% !important;
+  top: 0px !important;
+  left: 0px !important;
+  background-image: url("/images/photo-two-hearts.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+/* ==========================================================================
+/* ==========================================================================
+   SCROLL REVEAL ANIMATIONS (SEQUENTIAL STAGGERED TOP-TO-BOTTOM & SAME ROW)
+   Yêu cầu:
+   - Dấu "&" (ampersand) có hiệu ứng animation rõ ràng, sang trọng
+   - Animation lần lượt từ trên xuống dưới, phần tử cùng hàng animation sau 1 chút
+   - Delay cơ sở 1s mượt mà, không giật lag
+   ========================================================================== */
+
+/* 1. Gallery 2-column: Cột trái trượt từ trái vào, Cột phải trượt từ phải vào (lần lượt, trật tự) */
+.gallery-card {
+  opacity: 0;
+  will-change: opacity, transform;
+  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--gallery-delay, 1s);
+}
+
+.gallery-card:nth-child(odd) {
+  transform: translate3d(-50px, 0, 0);
+}
+
+.gallery-card:nth-child(even) {
+  transform: translate3d(50px, 0, 0);
+}
+
+.gallery-card.in-view {
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+/* 2. Sổ lưu bút (Wishes): Trượt lên nhẹ nhàng khi cuộn tới (delay 1s) */
+.guestbook-wrapper {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 1s cubic-bezier(0.22, 1, 0.36, 1), transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 1s;
+  will-change: opacity, transform;
+}
+
+.guestbook-wrapper.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 3. Bức trên cùng Our Moments (#IMAGE83): trượt nhẹ từ trên xuống */
+#IMAGE83.w-animation > .w-image {
+  animation-name: fadeInDown !important;
+  animation-duration: 1s !important;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+  animation-iteration-count: 1;
+}
+
+/* 4. Giữ chuẩn delay động tuần tự (top-to-bottom, left-to-right) cho toàn bộ trang */
+.w-animation > *,
+.w-animation.w-element > *,
+.w-animation > .w-headline,
+.w-animation > .w-group,
+.w-animation > .w-image,
+.w-animation > .w-line,
+.w-animation > .w-shape,
+.w-animation > .w-form {
+  animation-delay: var(--anim-delay, 1s) !important;
+  animation-duration: 1s !important;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* 5. Hiệu ứng nghệ thuật dành riêng cho dấu & thư pháp đỏ tại Monogram (#IMAGE118) */
+@keyframes ampersandEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.62) translateY(-8px);
+  }
+  60% {
+    opacity: 0.95;
+    transform: scale(1.06) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+#IMAGE118.w-animation > .w-image {
+  animation-name: ampersandEntrance !important;
+  animation-duration: 1.1s !important;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+  animation-iteration-count: 1;
+}
+
+#IMAGE118 > .w-image > .w-image-background {
+  background-image: url("/images/deco-ampersand-red.png") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 6. Section 2: Watermark dấu & hồng pastel thanh lịch nằm chìm phía sau tên cô dâu chú rể */
+#IMAGE119 {
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+#IMAGE119 > .w-image > .w-image-background {
+  background-image: url("/images/deco-ampersand-pink.png") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  opacity: 0.75 !important;
+}
+
+#IMAGE119.w-animation > .w-image {
+  animation-name: fadeIn !important;
+  animation-duration: 1.2s !important;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+  animation-iteration-count: 1;
+}
+
+#HEADLINE111,
+#HEADLINE112 {
+  z-index: 2 !important;
+  position: absolute !important;
+}
+
+#HEADLINE113 {
+  display: none !important;
+}
+
+/* ==========================================================================
+   TIMELINE SECTION (SECTION 4) - SCHEDULE, TYPOGRAPHY & NO OVERLAP
+   Yêu cầu:
+   - Nét thời gian nét thường (font-weight: 400), nhỏ thanh mảnh (12px), white-space: nowrap
+   - Tên sự kiện in đậm (font-weight: 700), 15px, text-transform: uppercase
+   - Ảnh minh họa to rõ ràng (ảnh to thể hiện), đặt sát ngay bên dưới chữ (gap ~6px)
+   - Chữ và ảnh không đè lên dây uốn lượn (curve)
+   ========================================================================== */
+.timeline-time {
+  display: block !important;
+  font-family: Taviraj, serif !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.5px !important;
+  color: rgb(127, 6, 6) !important;
+  white-space: nowrap !important;
+  opacity: 0.85;
+  text-align: center;
+}
+
+.timeline-title {
+  display: block !important;
+  font-family: Taviraj, serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
+  color: rgb(127, 6, 6) !important;
+  white-space: nowrap !important;
+  margin-top: 2px !important;
+  text-align: center;
+}
+
+#HEADLINE81 > .w-headline,
+#HEADLINE82 > .w-headline,
+#HEADLINE83 > .w-headline,
+#HEADLINE84 > .w-headline {
+  transform: none !important;
+}
+
+/* Node 1: 16:00 · 27/11 ĐẠI TIỆC */
+#HEADLINE81 {
+  width: 180px !important;
+  top: 195px !important;
+  left: 125px !important;
+}
+
+#IMAGE91,
+#IMAGE91 > .w-image,
+#IMAGE91 > .w-image > .w-image-background {
+  width: 56px !important;
+  height: 92px !important;
+}
+
+#IMAGE91 {
+  top: 233px !important;
+  left: 187px !important;
+}
+
+#IMAGE91 > .w-image > .w-image-background {
+  background-image: url("/images/icon-timeline-dinner.png") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Node 2: 19:00 · 27/11 ÂM NHẠC DJ */
+#HEADLINE82 {
+  width: 160px !important;
+  top: 380px !important;
+  left: 200px !important;
+}
+
+#IMAGE90,
+#IMAGE90 > .w-image,
+#IMAGE90 > .w-image > .w-image-background {
+  width: 78px !important;
+  height: 82px !important;
+}
+
+#IMAGE90 {
+  top: 418px !important;
+  left: 241px !important;
+}
+
+#IMAGE90 > .w-image > .w-image-background {
+  background-image: url("/images/icon-timeline-disco.png") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Node 3: 10:00 · 28/11 ĐÓN DÂU (Khoang mở bên trái, không đè dây, ảnh sát chữ) */
+#HEADLINE83 {
+  width: 150px !important;
+  top: 540px !important;
+  left: 11px !important;
+}
+
+#IMAGE89,
+#IMAGE89 > .w-image,
+#IMAGE89 > .w-image > .w-image-background {
+  width: 64px !important;
+  height: 96px !important;
+}
+
+#IMAGE89 {
+  top: 578px !important;
+  left: 54px !important;
+}
+
+#IMAGE89 > .w-image > .w-image-background {
+  background-image: url("/images/icon-timeline-bouquet.png") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Node 4: 13:00 · 28/11 LỄ THÀNH HÔN */
+#HEADLINE84 {
+  width: 170px !important;
+  top: 688px !important;
+  left: 125px !important;
+}
+
+#IMAGE88,
+#IMAGE88 > .w-image,
+#IMAGE88 > .w-image > .w-image-background {
+  width: 90px !important;
+  height: 92px !important;
+}
+
+#IMAGE88 {
+  top: 726px !important;
+  left: 165px !important;
+}
+
+#IMAGE88 > .w-image > .w-image-background {
+  background-image: url("/images/icon-timeline-rings.png") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
