@@ -26,19 +26,24 @@ export async function generateMetadata({
     ? `Trân trọng kính mời ${guestName} tới dự lễ thành hôn của Quang Thắng & Tường Lan!`
     : "Thân mời bạn tới dự lễ thành hôn của chúng mình!";
 
+  const canonicalUrl = guestName
+    ? `https://vochongthanglan.online/?invite=${encodeURIComponent(guestName)}`
+    : "https://vochongthanglan.online";
+
   return {
     title,
     description,
     openGraph: {
       title,
       description,
-      url: "https://vochongthanglan.online",
+      url: canonicalUrl,
       siteName: "Quang Thắng & Tường Lan",
       type: "website",
       locale: "vi_VN",
       images: [
         {
           url: "https://vochongthanglan.online/images/og-share.jpg",
+          secureUrl: "https://vochongthanglan.online/images/og-share.jpg",
           width: 1200,
           height: 630,
           type: "image/jpeg",

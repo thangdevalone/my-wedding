@@ -33,8 +33,10 @@ export const metadata: Metadata = {
     images: [
       {
         url: "https://vochongthanglan.online/images/og-share.jpg",
+        secureUrl: "https://vochongthanglan.online/images/og-share.jpg",
         width: 1200,
         height: 630,
+        type: "image/jpeg",
         alt: "Quang Thắng & Tường Lan - Thiệp Cưới",
       },
     ],
