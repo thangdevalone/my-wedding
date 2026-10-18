@@ -311,7 +311,7 @@ body {
 }
 #FORM_ITEM2 input.w-form-control {
   height: 36px !important;
-  padding: 0 12px !important;
+  padding: 0 6px !important;
 }
 #FORM_ITEM3 {
   top: 48px !important;
@@ -326,7 +326,7 @@ body {
 }
 #FORM_ITEM3 textarea.w-form-control {
   height: 85px !important;
-  padding: 10px 12px !important;
+  padding: 8px 6px !important;
   line-height: 1.5 !important;
   resize: none !important;
 }
@@ -371,10 +371,11 @@ body {
   padding: 0 !important;
   line-height: 42px !important;
   font-family: Taviraj, serif !important;
-  font-size: 19px !important;
-  font-weight: 600 !important;
-  letter-spacing: 1px !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  letter-spacing: 2.5px !important;
   color: rgb(255, 255, 255) !important;
+  text-transform: uppercase !important;
 }
 #FORM2 {
   top: 75px !important;
@@ -399,7 +400,7 @@ body {
 }
 #SECTION8,
 #IMAGE59 {
-  height: 365px !important;
+  height: 318px !important;
 }
 
 /* ==========================================================================
@@ -414,7 +415,7 @@ body {
   background-image: url("/images/bg-paper-texture.webp") !important;
   background-size: 420px auto !important;
   background-repeat: repeat-y !important;
-  padding: 15px 16px 25px 16px !important;
+  padding: 6px 16px 25px 16px !important;
   box-sizing: border-box !important;
 }
 
@@ -475,17 +476,18 @@ body {
 }
 
 .guestbook-item {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid rgba(127, 6, 6, 0.3) !important;
+  position: relative !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(127, 6, 6, 0.28) !important;
   border-radius: 0px !important;
-  padding: 10px 14px !important;
+  padding: 11px 14px !important;
   box-sizing: border-box !important;
-  box-shadow: 0 1px 4px rgba(127, 6, 6, 0.04) !important;
+  box-shadow: 0 1px 5px rgba(127, 6, 6, 0.04) !important;
 }
 
 .guestbook-more-btn {
   width: 100% !important;
-  margin-top: 8px !important;
+  margin-top: 10px !important;
   padding: 9px 16px !important;
   background: transparent !important;
   border: 1px solid rgb(127, 6, 6) !important;
@@ -497,7 +499,7 @@ body {
   cursor: pointer !important;
   transition: all 0.25s ease !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 0.6px !important;
 }
 
 .guestbook-more-btn:hover {
@@ -507,34 +509,76 @@ body {
 
 .guestbook-item-header {
   display: flex !important;
-  align-items: baseline !important;
+  align-items: center !important;
   justify-content: space-between !important;
-  border-bottom: 1px dashed rgba(127, 6, 6, 0.15) !important;
-  padding-bottom: 3px !important;
-  margin-bottom: 5px !important;
+  border-bottom: 1px dashed rgba(127, 6, 6, 0.16) !important;
+  padding-bottom: 5px !important;
+  margin-bottom: 6px !important;
+}
+
+.guestbook-author-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.guestbook-heart-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #b82828 !important;
+  flex-shrink: 0 !important;
 }
 
 .guestbook-author {
   font-family: Taviraj, serif !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
   color: rgb(127, 6, 6) !important;
+  letter-spacing: 0.2px !important;
 }
 
 .guestbook-time {
   font-family: Taviraj, serif !important;
   font-size: 11px !important;
   color: #8a786f !important;
+  font-style: italic !important;
 }
 
 .guestbook-message {
   font-family: Taviraj, serif !important;
-  font-size: 13.5px !important;
-  line-height: 1.55 !important;
-  color: #332520 !important;
+  font-size: 14px !important;
+  font-style: italic !important;
+  line-height: 1.6 !important;
+  color: #382420 !important;
   margin: 0 !important;
   white-space: pre-line !important;
   word-break: break-word !important;
+  letter-spacing: 0.1px !important;
+}
+
+.guestbook-quote {
+  font-family: Georgia, serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: rgba(184, 46, 46, 0.5) !important;
+  line-height: 0 !important;
+  vertical-align: -1px !important;
+  padding: 0 1px !important;
+}
+
+.guestbook-empty-wrap {
+  text-align: center !important;
+  padding: 20px 14px !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px dashed rgba(184, 46, 46, 0.25) !important;
+  border-radius: 0px !important;
+}
+
+.guestbook-empty-heart {
+  font-size: 24px !important;
+  display: block !important;
+  margin-bottom: 6px !important;
 }
 
 /* ==========================================================================
@@ -736,14 +780,53 @@ body {
 }
 
 #FORM2 .w-form-item {
-  padding-left: 12px !important;
-  padding-right: 12px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 #FORM2 textarea.w-form-control {
   padding-top: 8px !important;
   line-height: 1.45 !important;
   resize: none;
+}
+
+/* ==========================================================================
+   TRANSITION FLOURISH & NOTE (Between RSVP Confirm Button & Guestbook)
+   ========================================================================== */
+.guestbook-transition-block {
+  text-align: center !important;
+  margin: 4px auto 14px auto !important;
+  padding: 0 10px !important;
+}
+
+.guestbook-flourish {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-bottom: 6px !important;
+}
+
+.guestbook-flourish .flourish-line {
+  flex: 1 !important;
+  max-width: 80px !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(127, 6, 6, 0.3), rgba(127, 6, 6, 0.45)) !important;
+}
+
+.guestbook-flourish .flourish-line:last-child {
+  background: linear-gradient(90deg, rgba(127, 6, 6, 0.45), rgba(127, 6, 6, 0.3), transparent) !important;
+}
+
+.guestbook-intro-quote {
+  font-family: Taviraj, serif !important;
+  font-size: 13px !important;
+  font-style: italic !important;
+  line-height: 1.5 !important;
+  color: rgb(127, 6, 6) !important;
+  opacity: 0.82 !important;
+  margin: 0 !important;
+  letter-spacing: 0.2px !important;
 }
 
 /* ==========================================================================
