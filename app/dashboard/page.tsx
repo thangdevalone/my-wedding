@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import type { GuestItem, GuestOwner } from "../lib/db";
+import type { GuestItem, GuestOwner, RsvpRow } from "../lib/db";
 
 const CATEGORIES = [
   "Gia đình / Họ hàng",
@@ -110,6 +110,8 @@ export default function DashboardPage() {
 
   // Data state
   const [guests, setGuests] = useState<GuestItem[]>([]);
+  const [wishes, setWishes] = useState<RsvpRow[]>([]);
+  const [deletingWishId, setDeletingWishId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   // Add / Quick form state
@@ -154,6 +156,7 @@ export default function DashboardPage() {
         return false;
       }
       setGuests(data.guests || []);
+      setWishes(data.wishes || []);
       setAuthUser(data.owner);
       setAuthPass(pass);
       if (typeof window !== "undefined") {
@@ -345,6 +348,35 @@ export default function DashboardPage() {
       }
     } catch {
       alert("Lỗi khi xóa khách mời!");
+    }
+  };
+
+  // Delete Wish (Lời chúc trên thiệp cưới)
+  const handleDeleteWish = async (wish: RsvpRow) => {
+    if (!authUser || !authPass) return;
+    if (!window.confirm(`Bạn có chắc muốn xóa lời chúc của "${wish.name}" trên thiệp cưới không?`)) {
+      return;
+    }
+
+    setDeletingWishId(wish.id);
+    try {
+      const res = await fetch(`/api/guests?id=${wish.id}&type=wish`, {
+        method: "DELETE",
+        headers: {
+          "x-guest-user": authUser,
+          "x-guest-pass": authPass,
+        },
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setWishes((prev) => prev.filter((w) => w.id !== wish.id));
+      } else {
+        alert(data.error || "Xóa lời chúc thất bại!");
+      }
+    } catch {
+      alert("Lỗi khi xóa lời chúc!");
+    } finally {
+      setDeletingWishId(null);
     }
   };
 
@@ -1202,6 +1234,74 @@ export default function DashboardPage() {
               </table>
             </div>
             </>
+          )}
+        </section>
+
+        {/* WISHES MANAGEMENT SECTION (Quản lý & Xóa Lời Chúc trên Thiệp Cưới) */}
+        <section className="bg-white rounded-2xl border border-[#7a3519]/20 shadow-xs overflow-hidden">
+          <div className="px-4 py-3 bg-[#f5ece7] border-b border-[#7a3519]/15 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[18px]">💌</span>
+              <span className="text-[14px] font-bold uppercase tracking-wider text-[#7f0606]">
+                Lời Chúc Trên Thiệp Cưới ({wishes.length} lời chúc)
+              </span>
+            </div>
+            <span className="text-[13px] text-stone-600">
+              Hiển thị trực tiếp trên sổ lưu bút ngoài trang chủ • Có thể xóa lời chúc rác / nhầm lẫn
+            </span>
+          </div>
+
+          {wishes.length === 0 ? (
+            <div className="text-center py-10 px-4 text-stone-500">
+              <p className="text-[15px]">Chưa có lời chúc nào được gửi trên thiệp cưới.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-stone-200 max-h-[480px] overflow-y-auto">
+              {wishes.map((w) => (
+                <div
+                  key={w.id}
+                  className="p-4 flex items-start justify-between gap-3 hover:bg-[#f8f3ed]/50 transition"
+                >
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-bold text-[16px] text-[#7f0606]">
+                        {w.name}
+                      </span>
+                      {w.invite && (
+                        <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 text-[12px]">
+                          Link: #{w.invite}
+                        </span>
+                      )}
+                      {w.created_at && (
+                        <span className="text-[12px] text-stone-400">
+                          {new Date(w.created_at).toLocaleString("vi-VN", {
+                            timeZone: "Asia/Ho_Chi_Minh",
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[15px] text-stone-700 italic break-words">
+                      “{w.message}”
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteWish(w)}
+                    disabled={deletingWishId === w.id}
+                    className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-red-100 active:bg-red-200 text-stone-600 hover:text-red-700 text-[13px] font-semibold transition cursor-pointer shrink-0 disabled:opacity-50"
+                    title="Xóa lời chúc này khỏi thiệp cưới"
+                  >
+                    {deletingWishId === w.id ? "Đang xóa..." : "🗑️ Xóa lời chúc"}
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </section>
       </main>

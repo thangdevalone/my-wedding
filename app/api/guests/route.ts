@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { loadGuests, saveGuests, type GuestItem, type GuestOwner } from "../../lib/db";
+import { getDb, loadGuests, saveGuests, type GuestItem, type GuestOwner, type RsvpRow } from "../../lib/db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -100,7 +100,14 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json(
-    { ok: true, owner: auth.owner, guests },
+    {
+      ok: true,
+      owner: auth.owner,
+      guests,
+      wishes: (getDb().prepare("SELECT * FROM rsvps ORDER BY id DESC").all() as RsvpRow[]).filter(
+        (r) => r.message && r.message.trim() !== ""
+      ),
+    },
     { headers: { "Cache-Control": "no-store" } }
   );
 }
@@ -198,7 +205,7 @@ export async function PUT(req: NextRequest) {
   return NextResponse.json({ ok: true, guest: updatedGuest });
 }
 
-/** DELETE /api/guests?id=123 */
+/** DELETE /api/guests?id=123(&type=wish) */
 export async function DELETE(req: NextRequest) {
   let body: Record<string, unknown> = {};
   try {
@@ -215,6 +222,15 @@ export async function DELETE(req: NextRequest) {
   const id = Number(req.nextUrl.searchParams.get("id") || body.id);
   if (!Number.isInteger(id) || id <= 0) {
     return NextResponse.json({ ok: false, error: "ID không hợp lệ" }, { status: 400 });
+  }
+
+  const targetType = req.nextUrl.searchParams.get("type") || (body && typeof body.type === "string" ? body.type : "guest");
+  if (targetType === "wish") {
+    const info = getDb().prepare("DELETE FROM rsvps WHERE id = ?").run(id);
+    if (info.changes === 0) {
+      return NextResponse.json({ ok: false, error: "Không tìm thấy lời chúc để xóa" }, { status: 404 });
+    }
+    return NextResponse.json({ ok: true });
   }
 
   const guests = loadGuests(auth.owner);
