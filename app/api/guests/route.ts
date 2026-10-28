@@ -4,8 +4,6 @@ import { getDb, loadGuests, saveGuests, type GuestItem, type GuestOwner, type Rs
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const VALID_PASSWORD = process.env.GUEST_PASSWORD || "28112026";
-
 function normalizeOwner(raw: unknown): GuestOwner | null {
   const s = String(raw ?? "")
     .trim()
@@ -20,14 +18,21 @@ function normalizeOwner(raw: unknown): GuestOwner | null {
   return null;
 }
 
+function getExpectedPassword(owner: GuestOwner): string {
+  if (owner === "codau") {
+    return process.env.CODAU_PASSWORD || process.env.DASHBOARD_PASSWORD || "";
+  }
+  return process.env.CHURE_PASSWORD || process.env.DASHBOARD_PASSWORD || "";
+}
+
 function authenticate(req: NextRequest, body?: Record<string, unknown>): { ok: true; owner: GuestOwner } | { ok: false; error: string } {
   const rawUser =
-    req.headers.get("x-guest-user") ||
+    req.headers.get("x-dashboard-user") ||
     req.nextUrl.searchParams.get("user") ||
     (body && typeof body.user === "string" ? body.user : "");
 
   const rawPass =
-    req.headers.get("x-guest-pass") ||
+    req.headers.get("x-dashboard-pass") ||
     req.nextUrl.searchParams.get("password") ||
     (body && typeof body.password === "string" ? body.password : "");
 
@@ -36,7 +41,12 @@ function authenticate(req: NextRequest, body?: Record<string, unknown>): { ok: t
     return { ok: false, error: "Tài khoản không hợp lệ (Chỉ chấp nhận: codau hoặc chure)" };
   }
 
-  if (rawPass.trim() !== VALID_PASSWORD) {
+  const expectedPass = getExpectedPassword(owner);
+  if (!expectedPass) {
+    return { ok: false, error: "Chưa cấu hình mật khẩu (DASHBOARD_PASSWORD) trong file .env trên server!" };
+  }
+
+  if (rawPass.trim() !== expectedPass.trim()) {
     return { ok: false, error: "Mật khẩu không chính xác!" };
   }
 

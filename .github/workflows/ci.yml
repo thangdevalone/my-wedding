@@ -90,7 +90,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
           REPO_NAME: ${{ github.repository }}
-          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || 'thangdevalone' }}
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
           APP_PORT: ${{ secrets.APP_PORT || '5200' }}
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -98,7 +98,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          envs: GHCR_TOKEN,GHCR_USER,REPO_NAME,ADMIN_TOKEN,APP_PORT
+          envs: GHCR_TOKEN,GHCR_USER,REPO_NAME,DASHBOARD_PASSWORD,APP_PORT
           script: |
             set -e
 
@@ -108,10 +108,10 @@ jobs:
               exit 1
             fi
 
-            echo "=== 2. Chuẩn bị thư mục dữ liệu SQLite ==="
+            echo "=== 2. Chuẩn bị thư mục dữ liệu & file .env trên VPS ==="
             mkdir -p ~/wedding-app/data
-            # Phân quyền để user nextjs trong container có quyền ghi SQLite
             chmod 777 ~/wedding-app/data
+            touch ~/wedding-app/.env
 
             echo "=== 3. Đăng nhập GHCR trên VPS ==="
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
@@ -131,9 +131,10 @@ jobs:
               --restart unless-stopped \
               -p "$PORT_MAP" \
               -v ~/wedding-app/data:/app/data \
+              --env-file ~/wedding-app/.env \
               -e NODE_ENV=production \
               -e DATABASE_DIR=/app/data \
-              -e ADMIN_TOKEN="$ADMIN_TOKEN" \
+              ${DASHBOARD_PASSWORD:+-e DASHBOARD_PASSWORD="$DASHBOARD_PASSWORD"} \
               "${IMAGE_NAME}:latest"
 
             echo "=== 6. Dọn dẹp images cũ ==="

@@ -7,9 +7,13 @@ services:
       - "${PORT:-5200}:3000"
     volumes:
       - ./data:/app/data
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
       - DATABASE_DIR=/app/data
-      - ADMIN_TOKEN=${ADMIN_TOKEN:-thangdevalone}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD}
+      - CODAU_PASSWORD=${CODAU_PASSWORD:-}
+      - CHURE_PASSWORD=${CHURE_PASSWORD:-}

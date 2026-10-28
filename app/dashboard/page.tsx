@@ -102,7 +102,7 @@ export default function DashboardPage() {
   const [authUser, setAuthUser] = useState<GuestOwner | null>(null);
   const [authPass, setAuthPass] = useState<string>("");
   const [loginUser, setLoginUser] = useState<string>("codau");
-  const [loginPass, setLoginPass] = useState<string>("28112026");
+  const [loginPass, setLoginPass] = useState<string>("");
   const [authError, setAuthError] = useState<string>("");
   const [initializing, setInitializing] = useState<boolean>(true);
 
@@ -217,8 +217,8 @@ export default function DashboardPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-guest-user": authUser,
-          "x-guest-pass": authPass,
+          "x-dashboard-user": authUser,
+          "x-dashboard-pass": authPass,
         },
         body: JSON.stringify({
           name: nameInput.trim(),
@@ -263,8 +263,8 @@ export default function DashboardPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-guest-user": authUser,
-          "x-guest-pass": authPass,
+          "x-dashboard-user": authUser,
+          "x-dashboard-pass": authPass,
         },
         body: JSON.stringify({
           id: guest.id,
@@ -297,8 +297,8 @@ export default function DashboardPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-guest-user": authUser,
-          "x-guest-pass": authPass,
+          "x-dashboard-user": authUser,
+          "x-dashboard-pass": authPass,
         },
         body: JSON.stringify(editingGuest),
       });
@@ -327,8 +327,8 @@ export default function DashboardPage() {
       const res = await fetch(`/api/guests?id=${guest.id}`, {
         method: "DELETE",
         headers: {
-          "x-guest-user": authUser,
-          "x-guest-pass": authPass,
+          "x-dashboard-user": authUser,
+          "x-dashboard-pass": authPass,
         },
       });
       const data = await res.json();
@@ -357,8 +357,8 @@ export default function DashboardPage() {
       const res = await fetch(`/api/guests?id=${wish.id}&type=wish`, {
         method: "DELETE",
         headers: {
-          "x-guest-user": authUser,
-          "x-guest-pass": authPass,
+          "x-dashboard-user": authUser,
+          "x-dashboard-pass": authPass,
         },
       });
       const data = await res.json();
@@ -474,13 +474,12 @@ export default function DashboardPage() {
             )}
 
             <div className="db-login-field">
-              <label className="db-label">Chọn nhanh sổ của bạn:</label>
+              <label className="db-label">Chọn sổ của bạn:</label>
               <div className="db-role-grid">
                 <button
                   type="button"
                   onClick={() => {
                     setLoginUser("codau");
-                    if (!loginPass) setLoginPass("28112026");
                     setAuthError("");
                   }}
                   className={`db-role-btn ${loginUser.toLowerCase().trim() === "codau" ? "active" : ""}`}
@@ -491,7 +490,6 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => {
                     setLoginUser("chure");
-                    if (!loginPass) setLoginPass("28112026");
                     setAuthError("");
                   }}
                   className={`db-role-btn ${loginUser.toLowerCase().trim() === "chure" ? "active" : ""}`}
@@ -520,7 +518,7 @@ export default function DashboardPage() {
                 type="password"
                 value={loginPass}
                 onChange={(e) => setLoginPass(e.target.value)}
-                placeholder="Nhập mật khẩu (28112026)..."
+                placeholder="Nhập mật khẩu..."
                 className="db-input"
               />
             </div>
