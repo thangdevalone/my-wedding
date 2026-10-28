@@ -733,11 +733,29 @@ body {
 
 /* ==========================================================================
    RESPONSIVE: 420px design canvas scaled to fit screens narrower than 420px
-   (--page-zoom is set in layout.tsx). Wider screens keep the centred 420px column.
+   (--page-zoom is set in layout.tsx + pure CSS @media fallbacks for 0ms paint).
+   Wider screens keep the centred 420px column.
    ========================================================================== */
+:root {
+  --page-zoom: 1;
+}
+@media (max-width: 419px) { :root { --page-zoom: 0.9857; } }
+@media (max-width: 414px) { :root { --page-zoom: 0.9810; } }
+@media (max-width: 412px) { :root { --page-zoom: 0.9762; } }
+@media (max-width: 400px) { :root { --page-zoom: 0.9452; } }
+@media (max-width: 393px) { :root { --page-zoom: 0.9333; } }
+@media (max-width: 390px) { :root { --page-zoom: 0.9262; } }
+@media (max-width: 384px) { :root { --page-zoom: 0.9119; } }
+@media (max-width: 375px) { :root { --page-zoom: 0.8905; } }
+@media (max-width: 360px) { :root { --page-zoom: 0.8571; } }
+@media (max-width: 344px) { :root { --page-zoom: 0.8167; } }
+@media (max-width: 320px) { :root { --page-zoom: 0.7619; } }
+
 .w-wraper {
   width: 420px !important;
   max-width: none !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
   zoom: var(--page-zoom, 1);
 }
 

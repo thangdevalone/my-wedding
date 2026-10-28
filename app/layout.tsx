@@ -57,11 +57,16 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
-        {/* The invitation is designed on a 420px canvas: scale it down on narrower screens */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+        />
+        <style id="page-zoom-css" suppressHydrationWarning />
+        {/* The invitation is designed on a 420px canvas: scale it down on narrower screens immediately at 0ms */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){var d=document.documentElement;function f(){var w=window.innerWidth;var z=Math.min(1,w/420);d.style.setProperty('--page-zoom',z.toFixed(4));var el=document.querySelector('.w-wraper');if(el){el.style.zoom=z.toFixed(4);}}f();window.addEventListener('resize',f);window.addEventListener('orientationchange',f);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',f);}})();",
+              "(function(){var d=document.documentElement;function f(){var cw=d?d.clientWidth:0;var iw=window.innerWidth||0;var vw=window.visualViewport?window.visualViewport.width:0;var sw=(window.screen&&window.screen.width)?window.screen.width:0;var c=[cw,iw,vw].filter(function(n){return n>0;});if(sw>0&&sw<=430){c.push(sw);}var w=c.length?Math.min.apply(Math,c):420;var z=Math.min(1,w/420).toFixed(4);d.style.setProperty('--page-zoom',z);var st=document.getElementById('page-zoom-css');if(st){st.textContent=':root{--page-zoom:'+z+' !important;}.w-wraper{zoom:'+z+' !important;}';}var el=document.querySelector('.w-wraper');if(el){el.style.zoom=z;}}f();window.__syncWeddingZoom=f;window.addEventListener('resize',f);window.addEventListener('orientationchange',f);window.addEventListener('pageshow',f);window.addEventListener('load',f);if(window.visualViewport){window.visualViewport.addEventListener('resize',f);}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){f();requestAnimationFrame(f);setTimeout(f,60);});}else{requestAnimationFrame(f);}})();",
           }}
         />
         <meta httpEquiv="Cache-Control" content="no-cache" />

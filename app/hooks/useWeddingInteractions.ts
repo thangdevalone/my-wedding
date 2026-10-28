@@ -4,6 +4,12 @@ import { useEffect } from "react";
 
 export function useWeddingInteractions() {
   useEffect(() => {
+    const syncZoom = (window as unknown as { __syncWeddingZoom?: () => void }).__syncWeddingZoom;
+    if (syncZoom) {
+      syncZoom();
+      requestAnimationFrame(syncZoom);
+    }
+
     // -------------------------------------------------------------------------
     // 1. LIVE COUNTDOWN TIMER (Target: November 28, 2026 10:00:00 UTC+7)
     // -------------------------------------------------------------------------
