@@ -19,6 +19,22 @@ export type WishItem = {
   createdAt: string;
 };
 
+export type GuestItem = {
+  id: number;
+  name: string;
+  phone: string;
+  category: string;
+  relationship: string;
+  priority: string;
+  giftAmount: string;
+  returnGift: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GuestOwner = "codau" | "chure";
+
 /**
  * Pure JSON-based atomic database.
  * Stored at: ./data/wedding.json (configured via DATABASE_DIR).
@@ -156,3 +172,47 @@ export function getPublicWishes(limit = 60): WishItem[] {
     return [];
   }
 }
+
+function getGuestsFilePath(owner: GuestOwner): string {
+  const dir = process.env.DATABASE_DIR || path.join(process.cwd(), "data");
+  if (!fs.existsSync(/*turbopackIgnore: true*/ dir)) {
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+    } catch {
+      // ignore
+    }
+  }
+  const safeOwner = owner === "codau" ? "codau" : "chure";
+  return path.join(dir, `guests_${safeOwner}.json`);
+}
+
+export function loadGuests(owner: GuestOwner): GuestItem[] {
+  const file = getGuestsFilePath(owner);
+  if (!fs.existsSync(/*turbopackIgnore: true*/ file)) {
+    return [];
+  }
+  try {
+    const raw = fs.readFileSync(file, "utf-8");
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error(`Error reading guests_${owner}.json:`, err);
+    return [];
+  }
+}
+
+export function saveGuests(owner: GuestOwner, guests: GuestItem[]): void {
+  const file = getGuestsFilePath(owner);
+  const dir = path.dirname(file);
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const tempFile = `${file}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify(guests, null, 2), "utf-8");
+    fs.renameSync(tempFile, file);
+  } catch (err) {
+    console.error(`Error saving guests_${owner}.json:`, err);
+  }
+}
+

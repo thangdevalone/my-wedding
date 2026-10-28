@@ -1513,3 +1513,12 @@ body {
   background-position: center !important;
   background-repeat: no-repeat !important;
 }
+
+/* ==========================================================================
+   DASHBOARD GUEST MANAGER (/dashboard) - 16px Mobile Anti-Zoom & Clean UI
+   ========================================================================== */
+.dashboard-root input,
+.dashboard-root select,
+.dashboard-root textarea {
+  font-size: 16px !important;
+}

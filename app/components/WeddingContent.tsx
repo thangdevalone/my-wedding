@@ -402,7 +402,7 @@ export default function WeddingContent({
                 </div>
                 <div id="ADDR_GIRL" className="w-element">
                   <h3 className="w-headline">
-                    ĐC: Cầu Trại, Ngọc Thiện
+                    ĐC: Đại Sơn, Ngọc Thiện
                     <br />
                     Bắc Ninh
                   </h3>{" "}
@@ -445,7 +445,7 @@ export default function WeddingContent({
                 </div>
                 <div id="ADDR_BOY" className="w-element">
                   <h3 className="w-headline">
-                    ĐC: Đình tế, Ngọc Thiện
+                    ĐC: Tân Thành, Trung Tiến
                     <br />
                     Bắc Ninh
                   </h3>{" "}
