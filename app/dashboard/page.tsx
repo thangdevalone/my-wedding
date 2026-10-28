@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import type { GuestItem, GuestOwner, RsvpRow } from "../lib/db";
+import "./dashboard.css";
 
 const CATEGORIES = [
   "Gia đình / Họ hàng",
@@ -42,7 +43,6 @@ function parseMoneyToVND(raw: string): number {
   const s = raw.toLowerCase().trim();
   if (!s) return 0;
 
-  // Handle patterns like "1tr5", "1.5tr", "2 triệu", "500k", "500.000", "500,000", "500"
   const trMatch = s.match(/^(\d+)(?:[.,](\d+))?\s*(?:tr|trieu|triệu|củ|cu)(\d*)$/);
   if (trMatch) {
     const main = parseInt(trMatch[1], 10);
@@ -59,13 +59,11 @@ function parseMoneyToVND(raw: string): number {
     return Math.round((main + decVal) * 1_000);
   }
 
-  // Pure digits with dots or commas
   const digitsOnly = s.replace(/[^\d]/g, "");
   if (!digitsOnly) return 0;
   const num = parseInt(digitsOnly, 10);
   if (isNaN(num)) return 0;
 
-  // If user typed 500 or 200 or 1000 without 000, treat < 50000 as thousands (e.g. 500 -> 500,000đ)
   if (num > 0 && num < 50_000) {
     return num * 1_000;
   }
@@ -77,34 +75,34 @@ function formatVND(amount: number): string {
   return amount.toLocaleString("vi-VN") + " đ";
 }
 
-function getCategoryBadgeColor(cat: string): string {
-  if (cat.includes("Gia đình")) return "bg-amber-100 text-amber-900 border-amber-300";
-  if (cat.includes("đại học")) return "bg-blue-100 text-blue-900 border-blue-300";
-  if (cat.includes("cấp 3")) return "bg-purple-100 text-purple-900 border-purple-300";
-  if (cat.includes("cấp 2") || cat.includes("cấp 1")) return "bg-indigo-100 text-indigo-900 border-indigo-300";
-  if (cat.includes("Đồng nghiệp")) return "bg-teal-100 text-teal-900 border-teal-300";
-  if (cat.includes("xã giao")) return "bg-stone-100 text-stone-700 border-stone-300";
-  return "bg-rose-50 text-rose-900 border-rose-200";
+function getCategoryStyle(cat: string): React.CSSProperties {
+  if (cat.includes("Gia đình")) return { backgroundColor: "#fef3c7", color: "#78350f", borderColor: "#fcd34d" };
+  if (cat.includes("đại học")) return { backgroundColor: "#dbeafe", color: "#1e3a8a", borderColor: "#93c5fd" };
+  if (cat.includes("cấp 3")) return { backgroundColor: "#f3e8ff", color: "#581c87", borderColor: "#d8b4fe" };
+  if (cat.includes("cấp 2") || cat.includes("cấp 1")) return { backgroundColor: "#e0e7ff", color: "#312e81", borderColor: "#a5b4fc" };
+  if (cat.includes("Đồng nghiệp")) return { backgroundColor: "#ccfbf1", color: "#134e4a", borderColor: "#5eead4" };
+  if (cat.includes("xã giao")) return { backgroundColor: "#f5f5f4", color: "#44403c", borderColor: "#d6d3d1" };
+  return { backgroundColor: "#ffe4e6", color: "#881337", borderColor: "#fda4af" };
 }
 
-function getPriorityBadgeColor(prio: string): string {
-  if (prio.includes("Ưu tiên 1")) return "bg-red-100 text-red-900 border-red-300 font-semibold";
-  if (prio.includes("Ưu tiên 2")) return "bg-amber-50 text-amber-800 border-amber-200";
-  return "bg-stone-100 text-stone-600 border-stone-200";
+function getPriorityStyle(prio: string): React.CSSProperties {
+  if (prio.includes("Ưu tiên 1")) return { backgroundColor: "#fee2e2", color: "#7f1d1d", borderColor: "#fca5a5" };
+  if (prio.includes("Ưu tiên 2")) return { backgroundColor: "#fef3c7", color: "#92400e", borderColor: "#fde68a" };
+  return { backgroundColor: "#f5f5f4", color: "#57534e", borderColor: "#e7e5e4" };
 }
 
-function getRelationshipBadgeColor(rel: string): string {
-  if (rel.includes("Thân") || rel.includes("Ruột thịt")) return "bg-rose-100 text-rose-900 border-rose-300 font-medium";
-  if (rel.includes("Xã giao")) return "bg-stone-100 text-stone-700 border-stone-300";
-  return "bg-orange-50 text-orange-900 border-orange-200";
+function getRelationshipStyle(rel: string): React.CSSProperties {
+  if (rel.includes("Thân") || rel.includes("Ruột thịt")) return { backgroundColor: "#ffe4e6", color: "#881337", borderColor: "#fda4af" };
+  if (rel.includes("Xã giao")) return { backgroundColor: "#f5f5f4", color: "#44403c", borderColor: "#d6d3d1" };
+  return { backgroundColor: "#ffedd5", color: "#7c2d12", borderColor: "#fed7aa" };
 }
 
 export default function DashboardPage() {
   // Auth state
   const [authUser, setAuthUser] = useState<GuestOwner | null>(null);
   const [authPass, setAuthPass] = useState<string>("");
-  const [loginUser, setLoginUser] = useState<string>("");
-  const [loginPass, setLoginPass] = useState<string>("");
+  const [loginUser, setLoginUser] = useState<string>("codau");
+  const [loginPass, setLoginPass] = useState<string>("28112026");
   const [authError, setAuthError] = useState<string>("");
   const [initializing, setInitializing] = useState<boolean>(true);
 
@@ -130,15 +128,12 @@ export default function DashboardPage() {
   // Edit modal state
   const [editingGuest, setEditingGuest] = useState<GuestItem | null>(null);
   const [savingEdit, setSavingEdit] = useState<boolean>(false);
-
-  // Inline quick gift update loading state
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   // Filter & Search state
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterRelationship, setFilterRelationship] = useState<string>("all");
-  const [filterPriority, setFilterPriority] = useState<string>("all");
   const [filterGiftState, setFilterGiftState] = useState<string>("all");
 
   // Load Guests from API
@@ -239,13 +234,12 @@ export default function DashboardPage() {
       const data = await res.json();
       if (res.ok && data.ok && data.guest) {
         setGuests((prev) => [data.guest, ...prev]);
-        // Reset only personal fields, keep category/relationship/priority so user can batch-input friends in same group rapidly!
         setNameInput("");
         setPhoneInput("");
         setGiftAmountInput("");
         setNotesInput("");
-        setFormSuccessMsg(`Đã thêm "${data.guest.name}"!`);
-        setTimeout(() => setFormSuccessMsg(""), 2500);
+        setFormSuccessMsg(`Đã thêm "${data.guest.name}" vào sổ!`);
+        setTimeout(() => setFormSuccessMsg(""), 3000);
         nameInputRef.current?.focus();
       } else {
         alert(data.error || "Không thể thêm khách mời");
@@ -257,7 +251,7 @@ export default function DashboardPage() {
     }
   };
 
-  // Quick Inline Update for Gift Amount or Return Gift Status directly from Table
+  // Quick Inline Update for Gift Amount or Return Gift Status
   const handleQuickUpdate = async (guest: GuestItem, changes: Partial<GuestItem>) => {
     if (!authUser || !authPass) return;
     const updatedOptimistic = { ...guest, ...changes };
@@ -282,7 +276,7 @@ export default function DashboardPage() {
         setGuests((prev) => prev.map((g) => (g.id === guest.id ? data.guest : g)));
       }
     } catch {
-      // revert if needed
+      // ignore
     } finally {
       setUpdatingId(null);
     }
@@ -351,7 +345,7 @@ export default function DashboardPage() {
     }
   };
 
-  // Delete Wish (Lời chúc trên thiệp cưới)
+  // Delete Wish
   const handleDeleteWish = async (wish: RsvpRow) => {
     if (!authUser || !authPass) return;
     if (!window.confirm(`Bạn có chắc muốn xóa lời chúc của "${wish.name}" trên thiệp cưới không?`)) {
@@ -395,7 +389,6 @@ export default function DashboardPage() {
 
       const matchCat = filterCategory === "all" || g.category === filterCategory;
       const matchRel = filterRelationship === "all" || g.relationship === filterRelationship;
-      const matchPrio = filterPriority === "all" || g.priority === filterPriority;
 
       let matchGift = true;
       if (filterGiftState === "has_gift") {
@@ -408,9 +401,9 @@ export default function DashboardPage() {
         matchGift = g.returnGift.includes("Đã đi lại");
       }
 
-      return matchSearch && matchCat && matchRel && matchPrio && matchGift;
+      return matchSearch && matchCat && matchRel && matchGift;
     });
-  }, [guests, searchQuery, filterCategory, filterRelationship, filterPriority, filterGiftState]);
+  }, [guests, searchQuery, filterCategory, filterRelationship, filterGiftState]);
 
   const stats = useMemo(() => {
     let totalMoney = 0;
@@ -440,10 +433,12 @@ export default function DashboardPage() {
 
   if (initializing) {
     return (
-      <div className="dashboard-root min-h-screen bg-[#f8f3ed] flex items-center justify-center p-4 text-[16px] text-[#382420]">
-        <div className="text-center space-y-2">
-          <div className="text-3xl animate-bounce">💒</div>
-          <p className="font-medium text-[#7f0606] text-[16px]">Đang tải sổ quản lý khách mời...</p>
+      <div className="db-page db-login-wrap">
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 36, marginBottom: 10 }}>💒</div>
+          <p style={{ fontWeight: 700, color: "#7f0606", fontSize: 16 }}>
+            Đang mở Sổ Quản Lý Khách Mời...
+          </p>
         </div>
       </div>
     );
@@ -452,28 +447,35 @@ export default function DashboardPage() {
   // ==================== LOGIN SCREEN ====================
   if (!authUser) {
     return (
-      <div className="dashboard-root min-h-screen bg-[#f8f3ed] flex items-center justify-center p-4 font-sans text-[16px] text-[#382420]">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-[#7f0606]/15 overflow-hidden">
-          <div className="bg-[#7f0606] text-[#f8f3ed] px-6 py-6 text-center">
-            <div className="text-3xl mb-1">💍</div>
-            <h1 className="text-[20px] font-bold tracking-wide uppercase">Sổ Quản Lý Khách Mời & Phong Bì</h1>
-            <p className="text-[14px] text-[#f8f3ed]/85 mt-1">Quang Thắng &amp; Tường Lan • 28.11.2026</p>
+      <div className="db-page db-login-wrap">
+        <div className="db-login-card">
+          <div className="db-login-header">
+            <div style={{ fontSize: 36 }}>💍</div>
+            <h1 className="db-login-title">Sổ Quản Lý Khách Mời &amp; Phong Bì</h1>
+            <p className="db-login-subtitle">Quang Thắng &amp; Tường Lan • 28.11.2026</p>
           </div>
 
-          <form onSubmit={handleLoginSubmit} className="p-6 space-y-5">
+          <form onSubmit={handleLoginSubmit} className="db-login-body">
             {authError && (
-              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-[15px] flex items-center gap-2">
-                <span>⚠️</span>
-                <span>{authError}</span>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  marginBottom: 18,
+                  borderRadius: 12,
+                  backgroundColor: "#fef2f2",
+                  border: "1.5px solid #fecaca",
+                  color: "#b91c1c",
+                  fontSize: 15,
+                  fontWeight: 600,
+                }}
+              >
+                ⚠️ {authError}
               </div>
             )}
 
-            {/* Quick Account Switcher Pills */}
-            <div>
-              <label className="block text-[14px] font-semibold text-[#7a3519] mb-2">
-                Chọn nhanh tài khoản hoặc tự nhập:
-              </label>
-              <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="db-login-field">
+              <label className="db-label">Chọn nhanh sổ của bạn:</label>
+              <div className="db-role-grid">
                 <button
                   type="button"
                   onClick={() => {
@@ -481,11 +483,7 @@ export default function DashboardPage() {
                     if (!loginPass) setLoginPass("28112026");
                     setAuthError("");
                   }}
-                  className={`py-2.5 px-3 rounded-xl border text-[16px] font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
-                    loginUser.toLowerCase().trim() === "codau"
-                      ? "bg-[#7f0606] text-white border-[#7f0606] shadow-sm"
-                      : "bg-[#f8f3ed] text-[#7a3519] border-[#7a3519]/25 hover:bg-[#f5ece7]"
-                  }`}
+                  className={`db-role-btn ${loginUser.toLowerCase().trim() === "codau" ? "active" : ""}`}
                 >
                   <span>👰🏻‍♀️</span> Cô Dâu (codau)
                 </button>
@@ -496,21 +494,15 @@ export default function DashboardPage() {
                     if (!loginPass) setLoginPass("28112026");
                     setAuthError("");
                   }}
-                  className={`py-2.5 px-3 rounded-xl border text-[16px] font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
-                    loginUser.toLowerCase().trim() === "chure"
-                      ? "bg-[#7f0606] text-white border-[#7f0606] shadow-sm"
-                      : "bg-[#f8f3ed] text-[#7a3519] border-[#7a3519]/25 hover:bg-[#f5ece7]"
-                  }`}
+                  className={`db-role-btn ${loginUser.toLowerCase().trim() === "chure" ? "active" : ""}`}
                 >
                   <span>🤵🏻‍♂️</span> Chú Rể (chure)
                 </button>
               </div>
             </div>
 
-            <div>
-              <label className="block text-[14px] font-semibold text-stone-700 mb-1.5">
-                Tài khoản đăng nhập
-              </label>
+            <div className="db-login-field">
+              <label className="db-label">Tài khoản đăng nhập</label>
               <input
                 type="text"
                 value={loginUser}
@@ -518,33 +510,41 @@ export default function DashboardPage() {
                 placeholder="Nhập codau hoặc chure"
                 autoCapitalize="none"
                 autoCorrect="off"
-                className="w-full px-4 py-3 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-stone-50/50 text-stone-900"
+                className="db-input"
               />
             </div>
 
-            <div>
-              <label className="block text-[14px] font-semibold text-stone-700 mb-1.5">
-                Mật khẩu
-              </label>
+            <div className="db-login-field">
+              <label className="db-label">Mật khẩu</label>
               <input
                 type="password"
                 value={loginPass}
                 onChange={(e) => setLoginPass(e.target.value)}
                 placeholder="Nhập mật khẩu (28112026)..."
-                className="w-full px-4 py-3 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-stone-50/50 text-stone-900"
+                className="db-input"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-[#7f0606] hover:bg-[#660505] active:scale-[0.99] text-white font-bold text-[16px] rounded-xl shadow-md transition cursor-pointer disabled:opacity-50"
+              className="db-btn db-btn-primary"
+              style={{ width: "100%", marginTop: 6 }}
             >
-              {loading ? "Đang mở sổ..." : "Vào Sổ Khách Mời"}
+              {loading ? "Đang mở sổ..." : "Vào Sổ Khách Mời →"}
             </button>
 
-            <div className="pt-3 border-t border-stone-200/80 text-center text-[13px] text-stone-500 space-y-1">
-              <p>Dữ liệu Cô Dâu (<code className="font-mono text-[#7f0606]">codau</code>) và Chú Rể (<code className="font-mono text-[#7f0606]">chure</code>) được tách riêng biệt 100%.</p>
+            <div
+              style={{
+                marginTop: 20,
+                paddingTop: 14,
+                borderTop: "1px solid #eee7e1",
+                textAlign: "center",
+                fontSize: 13,
+                color: "#786c66",
+              }}
+            >
+              Dữ liệu khách mời của Cô Dâu (<strong>codau</strong>) và Chú Rể (<strong>chure</strong>) được tách riêng biệt 100%.
             </div>
           </form>
         </div>
@@ -558,32 +558,31 @@ export default function DashboardPage() {
 
   // ==================== DASHBOARD SCREEN ====================
   return (
-    <div className="dashboard-root min-h-screen bg-[#f8f3ed] font-sans text-[16px] text-[#382420] pb-16">
+    <div className="db-page">
       {/* Top Sticky Header */}
-      <header className="bg-[#7f0606] text-[#f8f3ed] sticky top-0 z-30 shadow-md">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <span className="text-[24px]">{isBride ? "👰🏻‍♀️" : "🤵🏻‍♂️"}</span>
+      <header className="db-topbar">
+        <div className="db-topbar-inner">
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 28 }}>{isBride ? "👰🏻‍♀️" : "🤵🏻‍♂️"}</span>
             <div>
-              <h1 className="text-[17px] sm:text-[19px] font-bold leading-tight text-white">
+              <h1 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#ffffff" }}>
                 {ownerTitle}
               </h1>
-              <p className="text-[13px] text-[#f8f3ed]/80">
-                Tài khoản: <span className="font-semibold underline">{authUser}</span> • Dữ liệu độc lập
+              <p style={{ fontSize: 13, margin: 0, color: "rgba(248, 243, 237, 0.85)" }}>
+                Tài khoản: <strong style={{ textDecoration: "underline" }}>{authUser}</strong> • Dữ liệu tách riêng
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Switch fast between Bride & Groom */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
             <button
               type="button"
               onClick={() => {
                 const target = isBride ? "chure" : "codau";
                 fetchGuests(target, authPass);
               }}
-              className="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[13px] sm:text-[14px] font-medium transition cursor-pointer"
-              title="Đổi nhanh sang sổ bên kia"
+              className="db-btn db-btn-sm"
+              style={{ backgroundColor: "rgba(255,255,255,0.18)", color: "#ffffff" }}
             >
               Đổi sang {isBride ? "🤵🏻‍♂️ Chú Rể" : "👰🏻‍♀️ Cô Dâu"}
             </button>
@@ -591,7 +590,8 @@ export default function DashboardPage() {
             <a
               href={`/api/guests?user=${encodeURIComponent(authUser)}&password=${encodeURIComponent(authPass)}&format=csv`}
               download={`danh-sach-khach-${authUser}.csv`}
-              className="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-[13px] sm:text-[14px] font-medium transition shadow-xs"
+              className="db-btn db-btn-sm"
+              style={{ backgroundColor: "#047857", color: "#ffffff" }}
             >
               📥 Xuất Excel
             </a>
@@ -599,84 +599,83 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={handleLogout}
-              className="px-3 py-1.5 rounded-lg bg-black/25 hover:bg-black/40 text-white text-[13px] sm:text-[14px] font-medium transition cursor-pointer"
+              className="db-btn db-btn-sm"
+              style={{ backgroundColor: "rgba(0,0,0,0.28)", color: "#ffffff" }}
             >
-              Thoát
+              Đăng xuất
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-5">
+      <main className="db-container">
         {/* Summary Metric Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#7a3519]/15 shadow-xs">
-            <div className="text-[12px] font-semibold uppercase tracking-wider text-[#7a3519]">
-              Tổng khách mời ({isBride ? "Cô Dâu" : "Chú Rể"})
+        <div className="db-stats-grid">
+          <div className="db-stat-card">
+            <div className="db-stat-label">
+              Tổng khách ({isBride ? "Cô Dâu" : "Chú Rể"})
             </div>
-            <div className="text-[24px] font-bold text-[#382420] mt-1">{stats.totalGuests} <span className="text-[14px] font-normal text-stone-500">khách</span></div>
-            <div className="text-[13px] text-stone-500 mt-0.5">
-              Ưu tiên 1: <strong className="text-[#7f0606]">{stats.countPriority1}</strong> khách
+            <div className="db-stat-value">
+              {stats.totalGuests} <span style={{ fontSize: 14, fontWeight: 500, color: "#786c66" }}>khách</span>
+            </div>
+            <div className="db-stat-sub">
+              Ưu tiên 1: <strong style={{ color: "#7f0606" }}>{stats.countPriority1}</strong> khách
             </div>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#7a3519]/15 shadow-xs border-l-4 border-l-[#7f0606]">
-            <div className="text-[12px] font-semibold uppercase tracking-wider text-[#7f0606]">
+          <div className="db-stat-card" style={{ borderLeft: "4px solid #7f0606" }}>
+            <div className="db-stat-label" style={{ color: "#7f0606" }}>
               Đã nhập phong bì
             </div>
-            <div className="text-[24px] font-bold text-[#7f0606] mt-1">
-              {stats.countWithGift} <span className="text-[14px] font-normal text-stone-500">/ {stats.totalGuests}</span>
+            <div className="db-stat-value" style={{ color: "#7f0606" }}>
+              {stats.countWithGift}{" "}
+              <span style={{ fontSize: 14, fontWeight: 500, color: "#786c66" }}>
+                / {stats.totalGuests}
+              </span>
             </div>
-            <div className="text-[13px] text-stone-500 mt-0.5">
+            <div className="db-stat-sub">
               Chưa nhập: {stats.totalGuests - stats.countWithGift} khách
             </div>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#7a3519]/15 shadow-xs border-l-4 border-l-amber-600">
-            <div className="text-[12px] font-semibold uppercase tracking-wider text-amber-800">
+          <div className="db-stat-card" style={{ borderLeft: "4px solid #d97706" }}>
+            <div className="db-stat-label" style={{ color: "#b45309" }}>
               Tổng tiền mừng (Tạm tính)
             </div>
-            <div className="text-[22px] sm:text-[24px] font-bold text-amber-900 mt-1 truncate">
+            <div className="db-stat-value" style={{ color: "#92400e" }}>
               {formatVND(stats.totalMoney)}
             </div>
-            <div className="text-[13px] text-stone-500 mt-0.5">
-              Tự động cộng từ cột Phong bì
-            </div>
+            <div className="db-stat-sub">Tự động cộng từ cột Phong bì</div>
           </div>
 
-          <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-[#7a3519]/15 shadow-xs border-l-4 border-l-emerald-600">
-            <div className="text-[12px] font-semibold uppercase tracking-wider text-emerald-700">
+          <div className="db-stat-card" style={{ borderLeft: "4px solid #059669" }}>
+            <div className="db-stat-label" style={{ color: "#047857" }}>
               Đã đi lại / Đáp lễ
             </div>
-            <div className="text-[24px] font-bold text-emerald-800 mt-1">
-              {stats.countReturned} <span className="text-[14px] font-normal text-stone-500">khách</span>
+            <div className="db-stat-value" style={{ color: "#065f46" }}>
+              {stats.countReturned}{" "}
+              <span style={{ fontSize: 14, fontWeight: 500, color: "#786c66" }}>khách</span>
             </div>
-            <div className="text-[13px] text-stone-500 mt-0.5">
-              Dễ dàng tra cứu sau đám cưới
-            </div>
+            <div className="db-stat-sub">Dễ dàng tra cứu sau đám cưới</div>
           </div>
         </div>
 
-        {/* QUICK ADD GUEST FORM (16px Mobile-friendly, only Name required) */}
-        <section className="bg-white rounded-2xl border border-[#7a3519]/20 shadow-xs overflow-hidden">
-          <div className="bg-[#f5ece7] px-4 py-3 border-b border-[#7a3519]/15 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[18px]">➕</span>
-              <h2 className="text-[16px] font-bold text-[#7f0606]">
-                Thêm Khách Mời Mới ({ownerBadge})
-              </h2>
-            </div>
-            <span className="text-[13px] text-[#7a3519] font-medium">
-              * Chỉ bắt buộc nhập <strong>Tên khách mời</strong>, các mục khác có thể bổ sung sau
+        {/* QUICK ADD GUEST FORM */}
+        <section className="db-card">
+          <div className="db-card-header">
+            <h2 className="db-card-title">
+              <span>➕</span> Thêm Khách Mời Mới ({ownerBadge})
+            </h2>
+            <span style={{ fontSize: 13, color: "#7a3519", fontWeight: 600 }}>
+              * Chỉ bắt buộc nhập <strong>Tên khách mời</strong>, các mục khác để trống được
             </span>
           </div>
 
-          <form onSubmit={handleAddGuest} className="p-4 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-              {/* 1. Name (Required) */}
+          <form onSubmit={handleAddGuest} className="db-card-body">
+            <div className="db-form-grid">
               <div>
-                <label className="block text-[13px] font-bold uppercase text-[#7f0606] mb-1">
-                  Tên khách mời <span className="text-red-600">*</span>
+                <label className="db-label db-label-required">
+                  1. Tên khách mời <span style={{ color: "#dc2626" }}>*</span>
                 </label>
                 <input
                   ref={nameInputRef}
@@ -685,33 +684,27 @@ export default function DashboardPage() {
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
                   placeholder="VD: Nguyễn Văn A (Bạn ĐH)..."
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-white text-stone-900"
+                  className="db-input"
                 />
               </div>
 
-              {/* 2. Phone (Optional) */}
               <div>
-                <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                  Số điện thoại (Tùy chọn)
-                </label>
+                <label className="db-label">2. Số điện thoại (Tùy chọn)</label>
                 <input
                   type="tel"
                   value={phoneInput}
                   onChange={(e) => setPhoneInput(e.target.value)}
                   placeholder="VD: 0987..."
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-white text-stone-900"
+                  className="db-input"
                 />
               </div>
 
-              {/* 3. Category */}
               <div>
-                <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                  Danh mục / Nhóm
-                </label>
+                <label className="db-label">3. Danh mục / Nhóm</label>
                 <select
                   value={categoryInput}
                   onChange={(e) => setCategoryInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-white text-stone-900"
+                  className="db-select"
                 >
                   {CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
@@ -721,15 +714,12 @@ export default function DashboardPage() {
                 </select>
               </div>
 
-              {/* 4. Relationship */}
               <div>
-                <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                  Mức độ thân thiết
-                </label>
+                <label className="db-label">4. Mức độ thân thiết</label>
                 <select
                   value={relationshipInput}
                   onChange={(e) => setRelationshipInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-white text-stone-900"
+                  className="db-select"
                 >
                   {RELATIONSHIPS.map((rel) => (
                     <option key={rel} value={rel}>
@@ -739,15 +729,12 @@ export default function DashboardPage() {
                 </select>
               </div>
 
-              {/* 5. Priority */}
               <div>
-                <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                  Độ ưu tiên mời
-                </label>
+                <label className="db-label">5. Độ ưu tiên mời</label>
                 <select
                   value={priorityInput}
                   onChange={(e) => setPriorityInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-white text-stone-900"
+                  className="db-select"
                 >
                   {PRIORITIES.map((p) => (
                     <option key={p} value={p}>
@@ -757,29 +744,25 @@ export default function DashboardPage() {
                 </select>
               </div>
 
-              {/* 6. Gift Amount (Phong bì sau cưới) */}
               <div>
-                <label className="block text-[13px] font-semibold uppercase text-amber-800 mb-1">
-                  💰 Tiền phong bì (Nhập sau cưới)
+                <label className="db-label" style={{ color: "#92400e" }}>
+                  6. 💰 Tiền phong bì (Sau cưới)
                 </label>
                 <input
                   type="text"
                   value={giftAmountInput}
                   onChange={(e) => setGiftAmountInput(e.target.value)}
                   placeholder="VD: 500k, 1tr, 1 chỉ vàng..."
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-600 bg-amber-50/40 text-stone-900"
+                  className="db-input db-input-gift"
                 />
               </div>
 
-              {/* 7. Return gift status (Đi lại) */}
               <div>
-                <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                  🔄 Trạng thái đi lại
-                </label>
+                <label className="db-label">7. 🔄 Trạng thái đi lại</label>
                 <select
                   value={returnGiftInput}
                   onChange={(e) => setReturnGiftInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-white text-stone-900"
+                  className="db-select"
                 >
                   {RETURN_GIFT_STATUSES.map((st) => (
                     <option key={st} value={st}>
@@ -789,227 +772,231 @@ export default function DashboardPage() {
                 </select>
               </div>
 
-              {/* 8. Notes */}
               <div>
-                <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                  Ghi chú (Đi cùng, bàn tiệc, trả lễ...)
-                </label>
+                <label className="db-label">8. Ghi chú thêm</label>
                 <input
                   type="text"
                   value={notesInput}
                   onChange={(e) => setNotesInput(e.target.value)}
-                  placeholder="VD: Mời 2 vợ chồng, gửi thiệp..."
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-white text-stone-900"
+                  placeholder="VD: Mời 2 vợ chồng, bàn số 3..."
+                  className="db-input"
                 />
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-              <div className="text-[14px] text-emerald-700 font-medium min-h-[20px]">
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                marginTop: 18,
+              }}
+            >
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#047857", minHeight: 22 }}>
                 {formSuccessMsg && <span>✅ {formSuccessMsg}</span>}
               </div>
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full sm:w-auto px-6 py-3 bg-[#7f0606] hover:bg-[#660505] active:scale-[0.99] text-white font-bold text-[16px] rounded-xl shadow-sm transition cursor-pointer disabled:opacity-50"
-              >
+              <button type="submit" disabled={submitting} className="db-btn db-btn-primary">
                 {submitting ? "Đang lưu..." : "+ Lưu Vào Danh Sách"}
               </button>
             </div>
           </form>
         </section>
 
-        {/* SEARCH & FILTER BAR (All 16px inputs for zero zoom on mobile) */}
-        <section className="bg-white p-4 rounded-2xl border border-[#7a3519]/20 shadow-xs space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-            {/* Search Box */}
-            <div className="md:col-span-5">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="🔍 Tìm tên, SĐT, tiền phong bì, ghi chú để đi lại..."
-                className="w-full px-4 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606] bg-stone-50/60 text-stone-900"
-              />
-            </div>
+        {/* SEARCH & FILTER BAR */}
+        <section className="db-card">
+          <div className="db-card-body">
+            <div className="db-filter-grid">
+              <div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="🔍 Tìm tên, SĐT, tiền phong bì, ghi chú để đi lại..."
+                  className="db-input"
+                />
+              </div>
 
-            {/* Category Filter */}
-            <div className="md:col-span-2">
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="w-full px-3 py-2.5 text-[16px] border border-stone-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
-              >
-                <option value="all">Tất cả danh mục</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Relationship Filter */}
-            <div className="md:col-span-2">
-              <select
-                value={filterRelationship}
-                onChange={(e) => setFilterRelationship(e.target.value)}
-                className="w-full px-3 py-2.5 text-[16px] border border-stone-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
-              >
-                <option value="all">Mọi quan hệ</option>
-                {RELATIONSHIPS.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Priority Filter */}
-            <div className="md:col-span-3">
-              <select
-                value={filterGiftState}
-                onChange={(e) => setFilterGiftState(e.target.value)}
-                className="w-full px-3 py-2.5 text-[16px] border border-stone-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
-              >
-                <option value="all">Tất cả trạng thái phong bì</option>
-                <option value="has_gift">💰 Đã có phong bì</option>
-                <option value="no_gift">⏳ Chưa nhập phong bì</option>
-                <option value="need_return">🔔 Cần đi lại (Chưa trả lễ)</option>
-                <option value="returned">✅ Đã đi lại xong</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Quick Category Pills for 1-Tap Filtering */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
-            <button
-              type="button"
-              onClick={() => setFilterCategory("all")}
-              className={`px-3 py-1.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition cursor-pointer ${
-                filterCategory === "all"
-                  ? "bg-[#7f0606] text-white"
-                  : "bg-[#f8f3ed] text-[#7a3519] hover:bg-[#f5ece7]"
-              }`}
-            >
-              Tất cả ({guests.length})
-            </button>
-            {CATEGORIES.map((cat) => {
-              const count = guests.filter((g) => g.category === cat).length;
-              if (count === 0 && filterCategory !== cat) return null;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setFilterCategory(filterCategory === cat ? "all" : cat)}
-                  className={`px-3 py-1.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition cursor-pointer ${
-                    filterCategory === cat
-                      ? "bg-[#7f0606] text-white"
-                      : "bg-[#f8f3ed] text-[#7a3519] hover:bg-[#f5ece7]"
-                  }`}
+              <div>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="db-select"
                 >
-                  {cat} ({count})
-                </button>
-              );
-            })}
+                  <option value="all">Tất cả danh mục</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <select
+                  value={filterRelationship}
+                  onChange={(e) => setFilterRelationship(e.target.value)}
+                  className="db-select"
+                >
+                  <option value="all">Mọi quan hệ</option>
+                  {RELATIONSHIPS.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <select
+                  value={filterGiftState}
+                  onChange={(e) => setFilterGiftState(e.target.value)}
+                  className="db-select"
+                >
+                  <option value="all">Mọi trạng thái phong bì</option>
+                  <option value="has_gift">💰 Đã có phong bì</option>
+                  <option value="no_gift">⏳ Chưa nhập phong bì</option>
+                  <option value="need_return">🔔 Cần đi lại (Chưa trả lễ)</option>
+                  <option value="returned">✅ Đã đi lại xong</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Category Quick Pills */}
+            <div className="db-pills">
+              <button
+                type="button"
+                onClick={() => setFilterCategory("all")}
+                className={`db-pill ${filterCategory === "all" ? "active" : ""}`}
+              >
+                Tất cả ({guests.length})
+              </button>
+              {CATEGORIES.map((cat) => {
+                const count = guests.filter((g) => g.category === cat).length;
+                if (count === 0 && filterCategory !== cat) return null;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setFilterCategory(filterCategory === cat ? "all" : cat)}
+                    className={`db-pill ${filterCategory === cat ? "active" : ""}`}
+                  >
+                    {cat} ({count})
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </section>
 
-        {/* GUEST LIST: FULL TABLE ON DESKTOP + EASY CARDS/TABLE ON MOBILE */}
-        <section className="bg-white rounded-2xl border border-[#7a3519]/20 shadow-xs overflow-hidden">
-          <div className="px-4 py-3 bg-[#f5ece7] border-b border-[#7a3519]/15 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[14px] font-bold uppercase tracking-wider text-[#7f0606]">
-              Danh Sách Khách Mời ({filteredGuests.length} khách)
-            </span>
-            <span className="text-[13px] text-stone-600">
-              💡 Bạn có thể gõ trực tiếp <strong>Tiền phong bì</strong> hoặc đổi <strong>Trạng thái đi lại</strong> ngay trên dòng của khách
+        {/* GUEST LIST */}
+        <section className="db-card">
+          <div className="db-card-header">
+            <h2 className="db-card-title">
+              <span>📋</span> Danh Sách Khách Mời ({filteredGuests.length} khách)
+            </h2>
+            <span style={{ fontSize: 13, color: "#6b4c3e" }}>
+              💡 Gõ trực tiếp <strong>Tiền phong bì</strong> hoặc chọn <strong>Đi lại</strong> ngay trên từng dòng, hệ thống tự lưu!
             </span>
           </div>
 
           {filteredGuests.length === 0 ? (
-            <div className="text-center py-14 px-4 text-stone-500">
-              <div className="text-[36px] mb-2">📋</div>
-              <p className="text-[16px] font-medium text-stone-700">
-                Chưa có khách mời nào trong danh sách lọc này
+            <div style={{ textAlign: "center", padding: "48px 20px", color: "#786c66" }}>
+              <div style={{ fontSize: 40, marginBottom: 8 }}>📭</div>
+              <p style={{ fontSize: 17, fontWeight: 700, color: "#382420", margin: "0 0 4px 0" }}>
+                Chưa có khách mời nào trong danh sách
               </p>
-              <p className="text-[14px] mt-1">
-                Hãy nhập tên khách mời ở biểu mẫu bên trên để bắt đầu lên danh sách nhé!
+              <p style={{ fontSize: 14, margin: 0 }}>
+                Hãy nhập tên khách mời ở khung Thêm Khách Mời bên trên để bắt đầu nhé!
               </p>
             </div>
           ) : (
             <>
-              {/* MOBILE CARD LIST (Visible on Mobile < 768px for 100% comfortable 16px touch input without horizontal scroll) */}
-              <div className="md:hidden divide-y divide-stone-200">
+              {/* MOBILE CARDS (< 768px) */}
+              <div className="db-mobile-list">
                 {filteredGuests.map((guest, index) => (
-                  <div key={guest.id} className="p-4 space-y-3 bg-white hover:bg-[#f8f3ed]/40">
-                    <div className="flex items-start justify-between gap-2">
+                  <div key={guest.id} className="db-mobile-card">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        justifyContent: "space-between",
+                        gap: 10,
+                        marginBottom: 8,
+                      }}
+                    >
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#7f0606]/10 text-[#7f0606] text-[12px] font-bold">
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: 24,
+                              height: 24,
+                              borderRadius: "50%",
+                              backgroundColor: "rgba(127,6,6,0.12)",
+                              color: "#7f0606",
+                              fontSize: 12,
+                              fontWeight: 800,
+                            }}
+                          >
                             {index + 1}
                           </span>
-                          <span className="font-bold text-[17px] text-[#382420]">
-                            {guest.name}
-                          </span>
+                          <strong style={{ fontSize: 17, color: "#2b1814" }}>{guest.name}</strong>
                         </div>
                         {guest.phone && (
                           <a
                             href={`tel:${guest.phone}`}
-                            className="text-[14px] text-stone-600 hover:text-[#7f0606] inline-flex items-center gap-1 mt-1"
+                            style={{
+                              display: "inline-block",
+                              marginTop: 4,
+                              fontSize: 14,
+                              color: "#7a3519",
+                              fontWeight: 600,
+                            }}
                           >
                             📞 {guest.phone}
                           </a>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      <div style={{ display: "flex", gap: 6 }}>
                         <button
                           type="button"
                           onClick={() => setEditingGuest({ ...guest })}
-                          className="px-2.5 py-1.5 rounded-lg bg-stone-100 active:bg-amber-100 text-stone-700 text-[13px] font-semibold"
+                          className="db-btn db-btn-secondary db-btn-sm"
                         >
                           ✏️ Sửa
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteGuest(guest)}
-                          className="px-2.5 py-1.5 rounded-lg bg-stone-100 active:bg-red-100 text-red-700 text-[13px] font-semibold"
+                          className="db-btn db-btn-sm"
+                          style={{ backgroundColor: "#fee2e2", color: "#b91c1c" }}
                         >
                           🗑️
                         </button>
                       </div>
                     </div>
 
-                    {/* Badges */}
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-lg text-[12px] font-semibold border ${getCategoryBadgeColor(
-                          guest.category
-                        )}`}
-                      >
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                      <span className="db-badge" style={getCategoryStyle(guest.category)}>
                         {guest.category}
                       </span>
-                      <span
-                        className={`px-2 py-0.5 rounded text-[12px] border ${getRelationshipBadgeColor(
-                          guest.relationship
-                        )}`}
-                      >
+                      <span className="db-badge" style={getRelationshipStyle(guest.relationship)}>
                         {guest.relationship}
                       </span>
-                      <span
-                        className={`px-2 py-0.5 rounded text-[12px] border ${getPriorityBadgeColor(
-                          guest.priority
-                        )}`}
-                      >
+                      <span className="db-badge" style={getPriorityStyle(guest.priority)}>
                         {guest.priority}
                       </span>
                     </div>
 
-                    {/* Quick Gift & Return Gift inputs on Mobile */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
                       <div>
-                        <label className="block text-[12px] font-semibold text-amber-800 mb-1">
+                        <label className="db-label" style={{ color: "#92400e", marginBottom: 4 }}>
                           💰 Tiền phong bì (Sau cưới):
                         </label>
                         <input
@@ -1023,16 +1010,12 @@ export default function DashboardPage() {
                             }
                           }}
                           placeholder="Nhập: 500k, 1tr..."
-                          className={`w-full px-3 py-2 text-[16px] rounded-xl border focus:outline-none focus:ring-2 focus:ring-amber-600 ${
-                            guest.giftAmount
-                              ? "bg-amber-50/90 border-amber-400 font-bold text-amber-950"
-                              : "bg-stone-50 border-stone-300 text-stone-800"
-                          }`}
+                          className={`db-input ${guest.giftAmount ? "db-input-gift" : ""}`}
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[12px] font-semibold text-stone-600 mb-1">
+                        <label className="db-label" style={{ marginBottom: 4 }}>
                           🔄 Đi lại / Đáp lễ:
                         </label>
                         <select
@@ -1040,13 +1023,14 @@ export default function DashboardPage() {
                           onChange={(e) =>
                             handleQuickUpdate(guest, { returnGift: e.target.value })
                           }
-                          className={`w-full px-3 py-2 text-[16px] rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#7f0606] ${
+                          className="db-select"
+                          style={
                             guest.returnGift?.includes("Đã đi lại")
-                              ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold"
+                              ? { backgroundColor: "#ecfdf5", borderColor: "#6ee7b7", color: "#065f46", fontWeight: 700 }
                               : guest.returnGift?.includes("Mừng trước")
-                              ? "bg-blue-50 border-blue-300 text-blue-900 font-medium"
-                              : "bg-white border-stone-300 text-stone-700"
-                          }`}
+                              ? { backgroundColor: "#eff6ff", borderColor: "#93c5fd", color: "#1e40af", fontWeight: 600 }
+                              : undefined
+                          }
                         >
                           {RETURN_GIFT_STATUSES.map((st) => (
                             <option key={st} value={st}>
@@ -1058,7 +1042,16 @@ export default function DashboardPage() {
                     </div>
 
                     {guest.notes && (
-                      <div className="text-[13px] text-stone-600 bg-stone-50 px-3 py-2 rounded-lg border border-stone-200/80">
+                      <div
+                        style={{
+                          marginTop: 10,
+                          padding: "8px 12px",
+                          backgroundColor: "#faf6f2",
+                          borderRadius: 8,
+                          fontSize: 13,
+                          color: "#574c47",
+                        }}
+                      >
                         📝 {guest.notes}
                       </div>
                     )}
@@ -1066,85 +1059,68 @@ export default function DashboardPage() {
                 ))}
               </div>
 
-              {/* DESKTOP FULL TABLE (Visible on >= 768px) */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              {/* DESKTOP FULL TABLE (>= 768px) */}
+              <div className="db-desktop-table db-table-wrap">
+                <table className="db-table">
                 <thead>
-                  <tr className="bg-stone-100 text-stone-700 text-[13px] font-bold uppercase tracking-wider border-b border-stone-200">
-                    <th className="py-3.5 px-3 w-10 text-center">#</th>
-                    <th className="py-3.5 px-3 min-w-[180px]">Khách mời &amp; SĐT</th>
-                    <th className="py-3.5 px-3 min-w-[140px]">Danh mục</th>
-                    <th className="py-3.5 px-3 min-w-[130px]">Quan hệ &amp; Ưu tiên</th>
-                    <th className="py-3.5 px-3 min-w-[175px]">💰 Phong bì (Sau cưới)</th>
-                    <th className="py-3.5 px-3 min-w-[175px]">🔄 Đi lại / Đáp lễ</th>
-                    <th className="py-3.5 px-3 min-w-[160px]">Ghi chú</th>
-                    <th className="py-3.5 px-3 text-center min-w-[115px]">Thao tác</th>
+                  <tr>
+                    <th style={{ width: 46, textAlign: "center" }}>#</th>
+                    <th style={{ minWidth: 190 }}>Khách mời &amp; SĐT</th>
+                    <th style={{ minWidth: 145 }}>Danh mục</th>
+                    <th style={{ minWidth: 165 }}>Quan hệ &amp; Ưu tiên</th>
+                    <th style={{ minWidth: 185 }}>💰 Phong bì (Sau cưới)</th>
+                    <th style={{ minWidth: 195 }}>🔄 Đi lại / Đáp lễ</th>
+                    <th style={{ minWidth: 160 }}>Ghi chú</th>
+                    <th style={{ minWidth: 135, textAlign: "center" }}>Thao tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-200 text-[15px]">
+                <tbody>
                   {filteredGuests.map((guest, index) => (
-                    <tr
-                      key={guest.id}
-                      className="hover:bg-[#f8f3ed]/60 transition align-middle"
-                    >
-                      {/* STT */}
-                      <td className="py-3 px-3 text-center text-[13px] font-semibold text-stone-400">
+                    <tr key={guest.id}>
+                      <td style={{ textAlign: "center", fontWeight: 700, color: "#9a8c84" }}>
                         {index + 1}
                       </td>
 
-                      {/* Name & Phone */}
-                      <td className="py-3 px-3">
-                        <div className="font-bold text-[16px] text-[#382420]">
+                      <td>
+                        <div style={{ fontWeight: 800, fontSize: 16, color: "#2b1814" }}>
                           {guest.name}
                         </div>
                         {guest.phone ? (
                           <a
                             href={`tel:${guest.phone}`}
-                            className="text-[13px] text-stone-500 hover:text-[#7f0606] inline-flex items-center gap-1 mt-0.5"
+                            style={{ fontSize: 13, color: "#7a3519", fontWeight: 600 }}
                           >
                             📞 {guest.phone}
                           </a>
                         ) : (
-                          <span className="text-[13px] text-stone-400 italic">Chưa có SĐT</span>
+                          <span style={{ fontSize: 12, color: "#a89f9a", fontStyle: "italic" }}>
+                            Chưa có SĐT
+                          </span>
                         )}
                       </td>
 
-                      {/* Category */}
-                      <td className="py-3 px-3">
-                        <span
-                          className={`inline-block px-2.5 py-1 rounded-lg text-[13px] font-semibold border ${getCategoryBadgeColor(
-                            guest.category
-                          )}`}
-                        >
+                      <td>
+                        <span className="db-badge" style={getCategoryStyle(guest.category)}>
                           {guest.category}
                         </span>
                       </td>
 
-                      {/* Relationship & Priority */}
-                      <td className="py-3 px-3 space-y-1">
-                        <div>
-                          <span
-                            className={`inline-block px-2 py-0.5 rounded text-[13px] border ${getRelationshipBadgeColor(
-                              guest.relationship
-                            )}`}
-                          >
+                      <td>
+                        <div style={{ marginBottom: 4 }}>
+                          <span className="db-badge" style={getRelationshipStyle(guest.relationship)}>
                             {guest.relationship}
                           </span>
                         </div>
                         <div>
-                          <span
-                            className={`inline-block px-2 py-0.5 rounded text-[12px] border ${getPriorityBadgeColor(
-                              guest.priority
-                            )}`}
-                          >
+                          <span className="db-badge" style={getPriorityStyle(guest.priority)}>
                             {guest.priority}
                           </span>
                         </div>
                       </td>
 
-                      {/* Inline Quick Input: Gift Amount (16px font to prevent mobile zoom) */}
-                      <td className="py-3 px-3">
-                        <div className="relative">
+                      {/* Quick Inline Gift Amount Input */}
+                      <td>
+                        <div style={{ position: "relative" }}>
                           <input
                             type="text"
                             defaultValue={guest.giftAmount}
@@ -1161,34 +1137,32 @@ export default function DashboardPage() {
                               }
                             }}
                             placeholder="Nhập: 500k, 1tr..."
-                            className={`w-full px-3 py-2 text-[16px] rounded-xl border transition focus:outline-none focus:ring-2 focus:ring-amber-600 ${
-                              guest.giftAmount
-                                ? "bg-amber-50/90 border-amber-400 font-bold text-amber-950"
-                                : "bg-stone-50 border-stone-300 text-stone-800"
-                            }`}
+                            className={`db-input ${guest.giftAmount ? "db-input-gift" : ""}`}
+                            style={{ padding: "8px 12px !important" }}
                           />
                           {updatingId === guest.id && (
-                            <span className="absolute right-2 top-2.5 text-[13px] text-amber-700">
+                            <span style={{ position: "absolute", right: 10, top: 10, fontSize: 13 }}>
                               ⏳
                             </span>
                           )}
                         </div>
                       </td>
 
-                      {/* Inline Quick Select: Return Gift Status */}
-                      <td className="py-3 px-3">
+                      {/* Quick Inline Return Gift Select */}
+                      <td>
                         <select
                           value={guest.returnGift || "Chưa đi lại"}
                           onChange={(e) =>
                             handleQuickUpdate(guest, { returnGift: e.target.value })
                           }
-                          className={`w-full px-2.5 py-2 text-[16px] rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#7f0606] ${
+                          className="db-select"
+                          style={
                             guest.returnGift?.includes("Đã đi lại")
-                              ? "bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold"
+                              ? { backgroundColor: "#ecfdf5", borderColor: "#6ee7b7", color: "#065f46", fontWeight: 700 }
                               : guest.returnGift?.includes("Mừng trước")
-                              ? "bg-blue-50 border-blue-300 text-blue-900 font-medium"
-                              : "bg-white border-stone-300 text-stone-700"
-                          }`}
+                              ? { backgroundColor: "#eff6ff", borderColor: "#93c5fd", color: "#1e40af", fontWeight: 600 }
+                              : undefined
+                          }
                         >
                           {RETURN_GIFT_STATUSES.map((st) => (
                             <option key={st} value={st}>
@@ -1198,31 +1172,24 @@ export default function DashboardPage() {
                         </select>
                       </td>
 
-                      {/* Notes */}
-                      <td className="py-3 px-3 text-[14px] text-stone-600">
-                        {guest.notes ? (
-                          <span>{guest.notes}</span>
-                        ) : (
-                          <span className="text-stone-400 italic">—</span>
-                        )}
+                      <td style={{ fontSize: 14, color: "#574c47" }}>
+                        {guest.notes || <span style={{ color: "#b8afa9" }}>—</span>}
                       </td>
 
-                      {/* Actions: Edit & Delete */}
-                      <td className="py-3 px-3 text-center">
-                        <div className="inline-flex items-center gap-1.5">
+                      <td style={{ textAlign: "center" }}>
+                        <div style={{ display: "inline-flex", gap: 6 }}>
                           <button
                             type="button"
                             onClick={() => setEditingGuest({ ...guest })}
-                            className="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-900 text-[13px] font-semibold transition cursor-pointer"
-                            title="Sửa thông tin"
+                            className="db-btn db-btn-secondary db-btn-sm"
                           >
                             ✏️ Sửa
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDeleteGuest(guest)}
-                            className="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-red-100 text-stone-600 hover:text-red-700 text-[13px] font-semibold transition cursor-pointer"
-                            title="Xóa khách mời"
+                            className="db-btn db-btn-sm"
+                            style={{ backgroundColor: "#fee2e2", color: "#b91c1c" }}
                           >
                             🗑️ Xóa
                           </button>
@@ -1237,43 +1204,48 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* WISHES MANAGEMENT SECTION (Quản lý & Xóa Lời Chúc trên Thiệp Cưới) */}
-        <section className="bg-white rounded-2xl border border-[#7a3519]/20 shadow-xs overflow-hidden">
-          <div className="px-4 py-3 bg-[#f5ece7] border-b border-[#7a3519]/15 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[18px]">💌</span>
-              <span className="text-[14px] font-bold uppercase tracking-wider text-[#7f0606]">
-                Lời Chúc Trên Thiệp Cưới ({wishes.length} lời chúc)
-              </span>
-            </div>
-            <span className="text-[13px] text-stone-600">
-              Hiển thị trực tiếp trên sổ lưu bút ngoài trang chủ • Có thể xóa lời chúc rác / nhầm lẫn
+        {/* WISHES MANAGEMENT SECTION */}
+        <section className="db-card">
+          <div className="db-card-header">
+            <h2 className="db-card-title">
+              <span>💌</span> Lời Chúc Trên Thiệp Cưới ({wishes.length} lời chúc)
+            </h2>
+            <span style={{ fontSize: 13, color: "#6b4c3e" }}>
+              Hiển thị ngoài trang chủ • Bấm <strong>Xóa lời chúc</strong> nếu có spam hoặc nhầm lẫn
             </span>
           </div>
 
           {wishes.length === 0 ? (
-            <div className="text-center py-10 px-4 text-stone-500">
-              <p className="text-[15px]">Chưa có lời chúc nào được gửi trên thiệp cưới.</p>
+            <div style={{ textAlign: "center", padding: "36px 20px", color: "#786c66" }}>
+              Chưa có lời chúc nào được gửi trên thiệp cưới.
             </div>
           ) : (
-            <div className="divide-y divide-stone-200 max-h-[480px] overflow-y-auto">
+            <div style={{ maxHeight: 460, overflowY: "auto" }}>
               {wishes.map((w) => (
                 <div
                   key={w.id}
-                  className="p-4 flex items-start justify-between gap-3 hover:bg-[#f8f3ed]/50 transition"
+                  style={{
+                    padding: "16px 20px",
+                    borderBottom: "1px solid #eee7e1",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    gap: 14,
+                  }}
                 >
-                  <div className="space-y-1 flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-bold text-[16px] text-[#7f0606]">
-                        {w.name}
-                      </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <strong style={{ fontSize: 16, color: "#7f0606" }}>{w.name}</strong>
                       {w.invite && (
-                        <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 text-[12px]">
+                        <span
+                          className="db-badge"
+                          style={{ backgroundColor: "#fef3c7", color: "#92400e", borderColor: "#fde68a" }}
+                        >
                           Link: #{w.invite}
                         </span>
                       )}
                       {w.created_at && (
-                        <span className="text-[12px] text-stone-400">
+                        <span style={{ fontSize: 12, color: "#8a7e78" }}>
                           {new Date(w.created_at).toLocaleString("vi-VN", {
                             timeZone: "Asia/Ho_Chi_Minh",
                             day: "2-digit",
@@ -1285,7 +1257,7 @@ export default function DashboardPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-[15px] text-stone-700 italic break-words">
+                    <p style={{ margin: 0, fontSize: 15, fontStyle: "italic", color: "#382420", wordBreak: "break-word" }}>
                       “{w.message}”
                     </p>
                   </div>
@@ -1294,8 +1266,8 @@ export default function DashboardPage() {
                     type="button"
                     onClick={() => handleDeleteWish(w)}
                     disabled={deletingWishId === w.id}
-                    className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-red-100 active:bg-red-200 text-stone-600 hover:text-red-700 text-[13px] font-semibold transition cursor-pointer shrink-0 disabled:opacity-50"
-                    title="Xóa lời chúc này khỏi thiệp cưới"
+                    className="db-btn db-btn-sm"
+                    style={{ backgroundColor: "#fee2e2", color: "#b91c1c", flexShrink: 0 }}
                   >
                     {deletingWishId === w.id ? "Đang xóa..." : "🗑️ Xóa lời chúc"}
                   </button>
@@ -1306,27 +1278,34 @@ export default function DashboardPage() {
         </section>
       </main>
 
-      {/* EDIT MODAL (16px inputs for mobile comfort) */}
+      {/* EDIT MODAL */}
       {editingGuest && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-[#7a3519]/20 overflow-hidden my-8">
-            <div className="bg-[#7f0606] text-white px-5 py-4 flex items-center justify-between">
-              <h3 className="font-bold text-[17px]">
+        <div className="db-modal-backdrop">
+          <div className="db-modal">
+            <div className="db-modal-header">
+              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: "#ffffff" }}>
                 ✏️ Sửa Thông Tin Khách Mời
               </h3>
               <button
                 type="button"
                 onClick={() => setEditingGuest(null)}
-                className="text-white/80 hover:text-white text-[20px] leading-none px-2 cursor-pointer"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#ffffff",
+                  fontSize: 20,
+                  cursor: "pointer",
+                  padding: "0 6px",
+                }}
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="p-5 space-y-4 text-[16px]">
-              <div>
-                <label className="block text-[13px] font-bold uppercase text-[#7f0606] mb-1">
-                  Tên khách mời <span className="text-red-600">*</span>
+            <form onSubmit={handleSaveEdit} className="db-modal-body">
+              <div style={{ marginBottom: 14 }}>
+                <label className="db-label db-label-required">
+                  Tên khách mời <span style={{ color: "#dc2626" }}>*</span>
                 </label>
                 <input
                   type="text"
@@ -1335,15 +1314,13 @@ export default function DashboardPage() {
                   onChange={(e) =>
                     setEditingGuest({ ...editingGuest, name: e.target.value })
                   }
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
+                  className="db-input"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="db-form-grid" style={{ gridTemplateColumns: "1fr 1fr", marginBottom: 14 }}>
                 <div>
-                  <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                    Số điện thoại
-                  </label>
+                  <label className="db-label">Số điện thoại</label>
                   <input
                     type="tel"
                     value={editingGuest.phone}
@@ -1351,20 +1328,18 @@ export default function DashboardPage() {
                       setEditingGuest({ ...editingGuest, phone: e.target.value })
                     }
                     placeholder="Tùy chọn..."
-                    className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
+                    className="db-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                    Danh mục / Nhóm
-                  </label>
+                  <label className="db-label">Danh mục / Nhóm</label>
                   <select
                     value={editingGuest.category}
                     onChange={(e) =>
                       setEditingGuest({ ...editingGuest, category: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
+                    className="db-select"
                   >
                     {CATEGORIES.map((c) => (
                       <option key={c} value={c}>
@@ -1375,9 +1350,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                    Mức độ thân thiết
-                  </label>
+                  <label className="db-label">Mức độ thân thiết</label>
                   <select
                     value={editingGuest.relationship}
                     onChange={(e) =>
@@ -1386,7 +1359,7 @@ export default function DashboardPage() {
                         relationship: e.target.value,
                       })
                     }
-                    className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
+                    className="db-select"
                   >
                     {RELATIONSHIPS.map((r) => (
                       <option key={r} value={r}>
@@ -1397,15 +1370,13 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                    Độ ưu tiên
-                  </label>
+                  <label className="db-label">Độ ưu tiên</label>
                   <select
                     value={editingGuest.priority}
                     onChange={(e) =>
                       setEditingGuest({ ...editingGuest, priority: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
+                    className="db-select"
                   >
                     {PRIORITIES.map((p) => (
                       <option key={p} value={p}>
@@ -1416,7 +1387,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-semibold uppercase text-amber-800 mb-1">
+                  <label className="db-label" style={{ color: "#92400e" }}>
                     💰 Tiền phong bì
                   </label>
                   <input
@@ -1429,14 +1400,12 @@ export default function DashboardPage() {
                       })
                     }
                     placeholder="VD: 500k, 1tr..."
-                    className="w-full px-3.5 py-2.5 text-[16px] border border-amber-300 bg-amber-50/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-600"
+                    className="db-input db-input-gift"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                    🔄 Trạng thái đi lại
-                  </label>
+                  <label className="db-label">🔄 Trạng thái đi lại</label>
                   <select
                     value={editingGuest.returnGift}
                     onChange={(e) =>
@@ -1445,7 +1414,7 @@ export default function DashboardPage() {
                         returnGift: e.target.value,
                       })
                     }
-                    className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
+                    className="db-select"
                   >
                     {RETURN_GIFT_STATUSES.map((st) => (
                       <option key={st} value={st}>
@@ -1456,10 +1425,8 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[13px] font-semibold uppercase text-stone-600 mb-1">
-                  Ghi chú
-                </label>
+              <div style={{ marginBottom: 18 }}>
+                <label className="db-label">Ghi chú</label>
                 <textarea
                   rows={2}
                   value={editingGuest.notes}
@@ -1467,22 +1434,22 @@ export default function DashboardPage() {
                     setEditingGuest({ ...editingGuest, notes: e.target.value })
                   }
                   placeholder="Ghi chú thêm..."
-                  className="w-full px-3.5 py-2.5 text-[16px] border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7f0606]"
+                  className="db-textarea"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-200">
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
                 <button
                   type="button"
                   onClick={() => setEditingGuest(null)}
-                  className="px-4 py-2.5 rounded-xl border border-stone-300 text-stone-700 font-medium text-[16px] hover:bg-stone-100 cursor-pointer"
+                  className="db-btn db-btn-secondary"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="px-6 py-2.5 rounded-xl bg-[#7f0606] hover:bg-[#660505] text-white font-bold text-[16px] shadow-sm cursor-pointer disabled:opacity-50"
+                  className="db-btn db-btn-primary"
                 >
                   {savingEdit ? "Đang lưu..." : "Lưu Thay Đổi"}
                 </button>
