@@ -59,7 +59,6 @@ function csvCell(value: string | number): string {
   return `"${s.replace(/"/g, '""')}"`;
 }
 
-/** GET /api/guests?user=codau&password=28112026(&format=csv) */
 export async function GET(req: NextRequest) {
   const auth = authenticate(req);
   if (!auth.ok) {
@@ -122,7 +121,6 @@ export async function GET(req: NextRequest) {
   );
 }
 
-/** POST /api/guests — Add a new guest */
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown> = {};
   try {
@@ -165,7 +163,6 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, guest: newGuest }, { status: 201 });
 }
 
-/** PUT /api/guests — Update an existing guest */
 export async function PUT(req: NextRequest) {
   let body: Record<string, unknown> = {};
   try {
@@ -215,7 +212,6 @@ export async function PUT(req: NextRequest) {
   return NextResponse.json({ ok: true, guest: updatedGuest });
 }
 
-/** DELETE /api/guests?id=123(&type=wish) */
 export async function DELETE(req: NextRequest) {
   let body: Record<string, unknown> = {};
   try {
