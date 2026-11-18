@@ -77,7 +77,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 3. SSH vào VPS và Pull Docker Image về chạy
+  # 3. SSH vào VPS bằng key CI bị giới hạn lệnh: chỉ chạy /usr/local/bin/deploy-wedding
+  #    Không dùng mật khẩu. App chỉ bind 127.0.0.1:5200, nginx mới là cửa vào công khai.
   deploy:
     name: Deploy to VPS via SSH
     needs: build-and-push
@@ -86,59 +87,10 @@ jobs:
     steps:
       - name: Deploy container on VPS
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GHCR_USER: ${{ github.actor }}
-          REPO_NAME: ${{ github.repository }}
-          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
-          APP_PORT: ${{ secrets.APP_PORT || '5200' }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          envs: GHCR_TOKEN,GHCR_USER,REPO_NAME,DASHBOARD_PASSWORD,APP_PORT
-          script: |
-            set -e
-
-            echo "=== 1. Kiểm tra Docker trên VPS ==="
-            if ! command -v docker &> /dev/null; then
-              echo "LỖI: Docker chưa được cài trên VPS! Vui lòng cài Docker theo hướng dẫn."
-              exit 1
-            fi
-
-            echo "=== 2. Chuẩn bị thư mục dữ liệu & file .env trên VPS ==="
-            mkdir -p ~/wedding-app/data
-            chmod 777 ~/wedding-app/data
-            touch ~/wedding-app/.env
-
-            echo "=== 3. Đăng nhập GHCR trên VPS ==="
-            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
-
-            echo "=== 4. Pull image mới nhất ==="
-            IMAGE_NAME=$(echo "ghcr.io/$REPO_NAME" | tr '[:upper:]' '[:lower:]')
-            docker pull "${IMAGE_NAME}:latest"
-
-            echo "=== 5. Restart container ==="
-            docker stop wedding-app || true
-            docker rm wedding-app || true
-
-            PORT_MAP="${APP_PORT}:3000"
-            echo "Khởi chạy container mapping port $PORT_MAP..."
-            docker run -d \
-              --name wedding-app \
-              --restart unless-stopped \
-              -p "$PORT_MAP" \
-              -v ~/wedding-app/data:/app/data \
-              --env-file ~/wedding-app/.env \
-              -e NODE_ENV=production \
-              -e DATABASE_DIR=/app/data \
-              ${DASHBOARD_PASSWORD:+-e DASHBOARD_PASSWORD="$DASHBOARD_PASSWORD"} \
-              "${IMAGE_NAME}:latest"
-
-            echo "=== 6. Dọn dẹp images cũ ==="
-            docker image prune -f
-
-            echo "=== DEPLOY THÀNH CÔNG! ==="
-            docker ps --filter "name=wedding-app"
+          key: ${{ secrets.VPS_SSH_KEY }}
+          fingerprint: ${{ secrets.VPS_HOST_FINGERPRINT }}
+          script: deploy-wedding
