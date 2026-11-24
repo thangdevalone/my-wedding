@@ -61,7 +61,11 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
         />
-        <style id="page-zoom-css" suppressHydrationWarning />
+        <style
+          id="page-zoom-css"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: "" }}
+        />
         {/* The invitation is designed on a 420px canvas: scale it down on narrower screens immediately at 0ms */}
         <script
           dangerouslySetInnerHTML={{

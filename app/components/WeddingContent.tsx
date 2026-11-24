@@ -370,7 +370,7 @@ export default function WeddingContent({
                       className="w-element w-animation-hidden"
                     >
                       <h3 className="w-headline w-transition">
-                        10:00, thứ bảy
+                        09:00, thứ bảy
                       </h3>{" "}
                     </div>
                   </div>
@@ -445,7 +445,7 @@ export default function WeddingContent({
                 </div>
                 <div id="ADDR_BOY" className="w-element">
                   <h3 className="w-headline">
-                    ĐC: Tân Thành, Trung Tiến
+                    ĐC: Đình Tế, Trung Tiến
                     <br />
                     Bắc Ninh
                   </h3>{" "}
@@ -579,9 +579,15 @@ export default function WeddingContent({
                 <span className="timeline-title">ÂM NHẠC DJ</span>
               </h3>{" "}
             </div>
+            <div id="HEADLINE_MEAL" className="w-element w-animation-hidden">
+              <h3 className="w-headline w-transition">
+                <span className="timeline-time">09:00 · 28/11</span>
+                <span className="timeline-title">TIỆC MỪNG</span>
+              </h3>{" "}
+            </div>
             <div id="HEADLINE83" className="w-element w-animation-hidden">
               <h3 className="w-headline w-transition">
-                <span className="timeline-time">10:00 · 28/11</span>
+                <span className="timeline-time">11:00 · 28/11</span>
                 <span className="timeline-title">ĐÓN DÂU</span>
               </h3>{" "}
             </div>
@@ -597,6 +603,11 @@ export default function WeddingContent({
               </div>
             </div>
             <div id="IMAGE89" className="w-element w-animation-hidden">
+              <div className="w-image w-transition">
+                <div className="w-image-background"></div>
+              </div>
+            </div>
+            <div id="IMAGE_MEAL" className="w-element w-animation-hidden">
               <div className="w-image w-transition">
                 <div className="w-image-background"></div>
               </div>
@@ -628,6 +639,9 @@ export default function WeddingContent({
                   <div className="w-box w-transition"></div>
                 </div>
                 <div id="BOX15" className="w-element">
+                  <div className="w-box w-transition"></div>
+                </div>
+                <div id="BOX_END" className="w-element">
                   <div className="w-box w-transition"></div>
                 </div>
               </div>

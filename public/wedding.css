@@ -341,9 +341,49 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
 
 #HEADLINE81 > .w-headline,
 #HEADLINE82 > .w-headline,
+#HEADLINE_MEAL > .w-headline,
 #HEADLINE83 > .w-headline,
 #HEADLINE84 > .w-headline {
   transform: none !important;
+}
+
+/* Dây uốn: kéo dài 570px -> 656px để đủ chỗ cho 5 mốc, chấm tròn dời theo cùng tỉ lệ */
+#GROUP71,
+#IMAGE85,
+#IMAGE85 > .w-image > .w-image-background {
+  height: 656px !important;
+}
+
+#IMAGE85 > .w-image > .w-image-background {
+  background-size: 100% 100% !important;
+}
+
+#BOX13 {
+  top: 210.1px !important;
+}
+
+#BOX14 {
+  top: 348.5px !important;
+}
+
+#BOX12 {
+  top: 36.1px !important;
+}
+
+#BOX15 {
+  top: 557px !important;
+}
+
+#BOX_END {
+  top: 638.5px !important;
+  left: 192px !important;
+  width: 8.7474px;
+  height: 8.7474px;
+}
+
+#BOX_END > .w-box {
+  border-radius: 100px;
+  background-color: rgb(127, 6, 6);
 }
 
 /* Node 1: 16:00 · 27/11 ĐẠI TIỆC */
@@ -375,7 +415,7 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
 /* Node 2: 19:00 · 27/11 ÂM NHẠC DJ */
 #HEADLINE82 {
   width: 160px !important;
-  top: 380px !important;
+  top: 405px !important;
   left: 200px !important;
 }
 
@@ -387,7 +427,7 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
 }
 
 #IMAGE90 {
-  top: 418px !important;
+  top: 443px !important;
   left: 241px !important;
 }
 
@@ -398,11 +438,45 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
   background-repeat: no-repeat !important;
 }
 
-/* Node 3: 10:00 · 28/11 ĐÓN DÂU (Khoang mở bên trái, không đè dây, ảnh sát chữ) */
+/* Node 3: 09:00 · 28/11 TIỆC MỪNG (Khoang mở bên trái, không đè dây, ảnh sát chữ) */
+#HEADLINE_MEAL {
+  width: 150px !important;
+  top: 592px !important;
+  left: 11px !important;
+}
+
+#IMAGE_MEAL,
+#IMAGE_MEAL > .w-image,
+#IMAGE_MEAL > .w-image > .w-image-background {
+  width: 56px !important;
+  height: 92px !important;
+}
+
+#IMAGE_MEAL {
+  top: 630px !important;
+  left: 58px !important;
+}
+
+#IMAGE_MEAL > .w-image > .w-image-background {
+  background-image: url("/images/icon-timeline-dinner.png") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+#HEADLINE_MEAL.w-animation > .w-headline,
+#IMAGE_MEAL.w-animation > .w-image {
+  animation-name: fadeInLeft;
+  animation-delay: 1s;
+  animation-duration: 1s;
+  animation-iteration-count: 1;
+}
+
+/* Node 4: 11:00 · 28/11 ĐÓN DÂU */
 #HEADLINE83 {
   width: 150px !important;
-  top: 540px !important;
-  left: 11px !important;
+  top: 690px !important;
+  left: 140px !important;
 }
 
 #IMAGE89,
@@ -413,8 +487,8 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
 }
 
 #IMAGE89 {
-  top: 578px !important;
-  left: 54px !important;
+  top: 728px !important;
+  left: 183px !important;
 }
 
 #IMAGE89 > .w-image > .w-image-background {
@@ -424,11 +498,11 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
   background-repeat: no-repeat !important;
 }
 
-/* Node 4: 13:00 · 28/11 LỄ THÀNH HÔN */
+/* Node 5: 13:00 · 28/11 LỄ THÀNH HÔN */
 #HEADLINE84 {
   width: 170px !important;
-  top: 688px !important;
-  left: 125px !important;
+  top: 882px !important;
+  left: 187px !important;
 }
 
 #IMAGE88,
@@ -439,8 +513,8 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
 }
 
 #IMAGE88 {
-  top: 726px !important;
-  left: 165px !important;
+  top: 920px !important;
+  left: 227px !important;
 }
 
 #IMAGE88 > .w-image > .w-image-background {

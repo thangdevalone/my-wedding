@@ -11,9 +11,9 @@ export function useWeddingInteractions() {
     }
 
     // -------------------------------------------------------------------------
-    // 1. LIVE COUNTDOWN TIMER (Target: November 28, 2026 10:00:00 UTC+7)
+    // 1. LIVE COUNTDOWN TIMER (Target: November 28, 2026 09:00:00 UTC+7)
     // -------------------------------------------------------------------------
-    const targetDate = new Date("2026-11-28T10:00:00+07:00").getTime();
+    const targetDate = new Date("2026-11-28T09:00:00+07:00").getTime();
 
     const updateCountdown = () => {
       const now = Date.now();
