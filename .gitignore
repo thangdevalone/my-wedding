@@ -51,3 +51,7 @@ scratch/
 /data/*.db-shm
 /data/*.db-wal
 !/data/schema.sql
+
+# spam ban list (runtime data)
+/data/blocked_ips.json
+/data/*.backup-*.json

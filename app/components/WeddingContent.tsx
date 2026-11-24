@@ -835,6 +835,7 @@ export default function WeddingContent({
                             tabIndex={1}
                             name="name"
                             required
+                            maxLength={60}
                             className="w-form-control"
                             type="text"
                             placeholder="Tên của bạn"

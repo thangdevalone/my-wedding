@@ -1,88 +1,102 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getDb, type RsvpRow } from "../../lib/db";
-import {
-  ATTENDANCE_OPTIONS,
-  SIDE_OPTIONS,
-  cleanInviteName,
-  cleanText,
-} from "../../lib/sanitize";
+import { cleanInviteName } from "../../lib/sanitize";
 import { checkContent } from "../../lib/profanity";
+import { clientIpKey } from "../../lib/clientIp";
+import { validateWish } from "../../lib/wishValidation";
+import {
+  deviceKey,
+  fingerprint,
+  isBlocked,
+  recordAccepted,
+  repeatsText,
+  retryAfter,
+  strike,
+  type Strike,
+} from "../../lib/spamGuard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// ---- tiny in-memory rate limit: 5 submissions / 10 minutes / IP ------------
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_PER_WINDOW = 5;
-const hits = (globalThis as unknown as { __rsvpHits?: Map<string, number[]> });
-hits.__rsvpHits ??= new Map();
+const MAX_BODY = 20_000;
+const DUPLICATE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
-function rateLimited(ip: string): boolean {
-  const map = hits.__rsvpHits!;
-  const now = Date.now();
-  const recent = (map.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  if (recent.length >= MAX_PER_WINDOW) {
-    map.set(ip, recent);
-    return true;
+function fail(error: string, status: number, headers?: HeadersInit) {
+  return NextResponse.json({ ok: false, error }, { status, headers });
+}
+
+/** Browsers always send Origin on a fetch POST; a request without it is a script. */
+function sameOrigin(req: NextRequest): boolean {
+  const source = req.headers.get("origin") ?? req.headers.get("referer");
+  if (!source) return false;
+  try {
+    return new URL(source).host === req.headers.get("host");
+  } catch {
+    return false;
   }
-  recent.push(now);
-  map.set(ip, recent);
-  if (map.size > 5000) map.clear();
-  return false;
-}
-
-function clientIp(req: NextRequest): string {
-  return req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
-}
-
-function fail(error: string, status: number) {
-  return NextResponse.json({ ok: false, error }, { status });
 }
 
 /** POST /api/rsvp — save one RSVP / wish. */
 export async function POST(req: NextRequest) {
-  // Same-origin only (browsers always send Origin on cross-site POST)
-  const origin = req.headers.get("origin");
-  if (origin) {
-    try {
-      if (new URL(origin).host !== req.headers.get("host")) return fail("forbidden", 403);
-    } catch {
-      return fail("forbidden", 403);
-    }
-  }
+  if (!sameOrigin(req)) return fail("forbidden", 403);
 
-  if (Number(req.headers.get("content-length") ?? 0) > 20_000) return fail("payload_too_large", 413);
+  const ip = clientIpKey(req);
+  if (isBlocked(ip)) return fail("blocked", 403);
+
+  const reject = (kind: Strike, status: number, headers?: HeadersInit) =>
+    strike(ip, kind) ? fail("blocked", 403) : fail(kind, status, headers);
+
+  if (!req.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+    return fail("unsupported_media_type", 415);
+  }
+  if (Number(req.headers.get("content-length") ?? 0) > MAX_BODY) return fail("payload_too_large", 413);
 
   let body: Record<string, unknown>;
   try {
-    body = await req.json();
+    const raw = await req.text();
+    if (raw.length > MAX_BODY) return fail("payload_too_large", 413);
+    body = JSON.parse(raw);
   } catch {
     return fail("invalid_json", 400);
   }
+  if (!body || typeof body !== "object" || Array.isArray(body)) return fail("invalid_json", 400);
 
-  // Honeypot: real users never fill this hidden field, bots do.
+  // Honeypot: real users never fill this hidden field, bots do. Pretend it worked.
   if (typeof body.website === "string" && body.website.trim() !== "") {
+    strike(ip, "honeypot");
     return NextResponse.json({ ok: true });
   }
 
-  const name = cleanText(body.name, 60);
-  const message = cleanText(body.message, 500, true);
+  const device = deviceKey(ip, req.headers.get("user-agent"));
+  const wait = retryAfter(ip, device);
+  if (wait > 0) return reject("too_many_requests", 429, { "Retry-After": String(wait) });
+
+  const valid = validateWish(body.name, body.message);
+  if (!valid.ok) {
+    if (valid.error === "inappropriate" || valid.error === "spam") return reject(valid.error, 422);
+    return fail(valid.error, 400);
+  }
+  const { name, message } = valid;
   const invite = cleanInviteName(body.invite);
 
-  if (!name) return fail("name_required", 400);
-  if (!message) return fail("message_required", 400);
-
-  // Block swearing / spam links in public wish
-  if ([name, message].some((t) => checkContent(t))) return fail("inappropriate", 422);
-
-  if (rateLimited(clientIp(req))) return fail("too_many_requests", 429);
+  // Same person + same wish sent twice, or one device pasting the same text under many names
+  const nameFp = fingerprint(name);
+  const messageFp = fingerprint(message);
+  const sentBefore = (getDb().prepare("SELECT * FROM rsvps ORDER BY id DESC").all() as RsvpRow[]).some(
+    (r) =>
+      Date.now() - Date.parse(r.created_at) < DUPLICATE_WINDOW_MS &&
+      fingerprint(r.name) === nameFp &&
+      fingerprint(r.message) === messageFp
+  );
+  if (sentBefore || repeatsText(device, message)) return reject("duplicate", 409);
 
   const info = getDb()
     .prepare(
-      `INSERT INTO rsvps (name, message, attendance, companions, side, invite)
-       VALUES (@name, @message, '', '', '', @invite)`
+      `INSERT INTO rsvps (name, message, attendance, companions, side, invite, ip)
+       VALUES (@name, @message, '', '', '', @invite, @ip)`
     )
-    .run({ name, message, invite });
+    .run({ name, message, invite, ip });
+  recordAccepted(ip, device, message);
 
   const newId = Number(info.lastInsertRowid);
   const wish = {

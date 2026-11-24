@@ -2,6 +2,21 @@
 
 import { useEffect } from "react";
 
+/** Short texts shown on the submit button for each /api/rsvp error code. */
+const SUBMIT_ERRORS: Record<string, string> = {
+  name_required: "VUI LÒNG ĐIỀN ĐỦ",
+  message_required: "VUI LÒNG ĐIỀN ĐỦ",
+  name_invalid: "TÊN CHƯA HỢP LỆ",
+  name_too_long: "TÊN QUÁ DÀI",
+  message_invalid: "LỜI CHÚC CHƯA HỢP LỆ",
+  message_too_long: "LỜI CHÚC QUÁ DÀI",
+  inappropriate: "TỪ NGỮ KHÔNG PHÙ HỢP",
+  spam: "KHÔNG GỬI LINK / SĐT",
+  duplicate: "LỜI CHÚC ĐÃ ĐƯỢC GỬI",
+  too_many_requests: "GỬI NHIỀU QUÁ, ĐỢI CHÚT",
+  blocked: "TẠM KHÓA GỬI LỜI CHÚC",
+};
+
 export function useWeddingInteractions() {
   useEffect(() => {
     const syncZoom = (window as unknown as { __syncWeddingZoom?: () => void }).__syncWeddingZoom;
@@ -116,11 +131,11 @@ export function useWeddingInteractions() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (res.status === 422) {
-          setLabel("TỪ NGỮ KHÔNG PHÙ HỢP", 3500);
+        if (!res.ok) {
+          const error = await res.json().then((d) => String(d?.error ?? ""), () => "");
+          setLabel(SUBMIT_ERRORS[error] ?? "GỬI LỖI - THỬ LẠI", 3500);
           return;
         }
-        if (!res.ok) throw new Error(String(res.status));
 
         // keep the invited guest's name, clear message
         const keepName = (form.elements.namedItem("name") as HTMLInputElement | null)?.defaultValue ?? name;

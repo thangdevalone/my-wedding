@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { checkContent } from "./profanity";
 
 export type RsvpRow = {
   id: number;
@@ -10,6 +11,18 @@ export type RsvpRow = {
   side: string;
   invite: string;
   created_at: string;
+  /** dashboard only (to block spammers), never sent to the public page */
+  ip?: string;
+};
+
+export type BlockedIp = {
+  ip: string;
+  reason: string;
+  source: "auto" | "manual";
+  offences: number;
+  createdAt: string;
+  /** null = until unblocked */
+  expiresAt: string | null;
 };
 
 export type WishItem = {
@@ -40,7 +53,7 @@ export type GuestOwner = "codau" | "chure";
  * Stored at: ./data/wedding.json (configured via DATABASE_DIR).
  * 100% pure JavaScript, zero native dependencies, zero Segmentation faults in Next.js Server Components.
  */
-function getDataFilePath(): string {
+export function getDataFilePath(): string {
   const dir = process.env.DATABASE_DIR || path.join(process.cwd(), "data");
   if (!fs.existsSync(/*turbopackIgnore: true*/ dir)) {
     try {
@@ -138,6 +151,7 @@ export function getDb() {
               side: String(p.side || ""),
               invite: String(p.invite || ""),
               created_at: new Date().toISOString(),
+              ...(p.ip ? { ip: String(p.ip) } : {}),
             };
 
             rows.push(newRow);
@@ -161,7 +175,9 @@ export function getPublicWishes(limit = 60): WishItem[] {
       )
       .all(limit) as Pick<RsvpRow, "id" | "name" | "message" | "created_at">[];
 
-    return rows.map((r) => ({
+    // same safety net as GET /api/rsvp
+    const clean = rows.filter((r) => !checkContent(r.name) && !checkContent(r.message));
+    return clean.map((r) => ({
       id: r.id,
       name: r.name,
       message: r.message,
@@ -216,3 +232,32 @@ export function saveGuests(owner: GuestOwner, guests: GuestItem[]): void {
   }
 }
 
+function getBlockedIpsFilePath(): string {
+  return path.join(process.env.DATABASE_DIR || path.join(process.cwd(), "data"), "blocked_ips.json");
+}
+
+export function loadBlockedIps(): BlockedIp[] {
+  const file = getBlockedIpsFilePath();
+  if (!fs.existsSync(/*turbopackIgnore: true*/ file)) {
+    return [];
+  }
+  try {
+    const data = JSON.parse(fs.readFileSync(file, "utf-8"));
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error("Error reading blocked_ips.json:", err);
+    return [];
+  }
+}
+
+export function saveBlockedIps(entries: BlockedIp[]): void {
+  const file = getBlockedIpsFilePath();
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const tempFile = `${file}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify(entries, null, 2), "utf-8");
+    fs.renameSync(tempFile, file);
+  } catch (err) {
+    console.error("Error saving blocked_ips.json:", err);
+  }
+}

@@ -16,10 +16,23 @@ const squeezeLong = (s: string) => s.replace(/(.)\1{2,}/gu, "$1");
 /** every run -> 1 ("dmm" -> "dm") */
 const squeezeAll = (s: string) => s.replace(/(.)\1+/gu, "$1");
 
+/** "chóoo", "bíiim": a run of the same vowel keeps only its accented letter */
+const squeezeMarked = (s: string) => {
+  const out: string[] = [];
+  for (const ch of s) {
+    const prev = out[out.length - 1];
+    if (prev === undefined || stripMarks(prev) !== stripMarks(ch)) out.push(ch);
+    else if (stripMarks(prev) === prev) out[out.length - 1] = ch;
+  }
+  return out.join("");
+};
+
 // --- diacritic-sensitive words (ambiguous when the marks are removed) ----------
 const RAW_WORDS = [
   "đụ", "địt", "đéo", "đĩ", "đm", "đmm", "đcm", "đkm", "đcmm", "đjt",
   "lồn", "buồi", "cặc", "cứt", "ngu",
+  // "bỉm" (diapers) and "cho" (for) are everyday words, so these need their marks
+  "bím", "bim", "bíms", "bims", "chó", "đít", "dái", "vú", "dâm", "điếm", "chịch", "nứng", "xoạc", "lìn", "bòi",
 ];
 
 // --- safe to match after stripping marks (no everyday Vietnamese word collides) -
@@ -27,6 +40,7 @@ const ASCII_WORDS = [
   "dit", "ditme", "ditmemay", "dcm", "dcmm", "dkm", "dmm", "dm", "vcl", "vkl", "vl",
   "clm", "cmm", "cmn", "cc", "loz", "dcmn", "vcc",
   "fuck", "fucking", "fck", "fuk", "shit", "bitch", "cunt", "asshole", "dickhead",
+  "dog", "dogs", "doggy", "doggie", "tuat", "tuats", "cak", "cave", "sex",
   "pussy", "nigga", "nigger", "porn", "wtf", "stfu",
 ];
 
@@ -75,6 +89,14 @@ function glueSingles(tokens: string[]): string[] {
   return out;
 }
 
+/** "b.ím", "ch-ó", "t*uất": punctuation typed inside one word is dropped */
+function joinInside(text: string): string[] {
+  return text
+    .split(/\s+/)
+    .filter((w) => /\p{L}[._*\-'’~^|/\\]+\p{L}/u.test(w))
+    .flatMap((w) => tokenize(w.replace(/(?<=\p{L})[._*\-'’~^|/\\]+(?=\p{L})/gu, "")));
+}
+
 export type BlockReason = "profanity" | "link";
 
 export function checkContent(text: string): BlockReason | null {
@@ -92,14 +114,31 @@ export function checkContent(text: string): BlockReason | null {
   if (PHRASES.some((p) => flat.includes(p))) return "profanity";
 
   const tokens = tokenize(text);
-  const candidates = [...tokens, ...glueSingles(tokens)];
+  const candidates = [...tokens, ...glueSingles(tokens), ...joinInside(text)];
 
   for (const tok of candidates) {
     const raw = squeezeLong(tok);
     const ascii = squeezeLong(stripMarks(tok));
-    if (EXACT_RAW.has(raw) || LOOSE_RAW.has(squeezeAll(tok))) return "profanity";
+    if (EXACT_RAW.has(raw) || LOOSE_RAW.has(squeezeAll(tok)) || LOOSE_RAW.has(squeezeMarked(tok))) return "profanity";
     if (EXACT_ASCII.has(ascii) || LOOSE_ASCII.has(squeezeAll(stripMarks(tok)))) return "profanity";
     if (ascii.length >= 4 && SUBSTRINGS.some((s) => ascii.includes(s))) return "profanity";
   }
   return null;
+}
+
+/** Text without its swear words; spaces and line breaks around the kept words stay. */
+export function removeProfanity(text: string): string {
+  const lower = (t: string) => t.toLowerCase().normalize("NFC");
+  let out = text.normalize("NFC");
+  for (const p of PHRASES) {
+    for (let i = lower(out).indexOf(p); i >= 0; i = lower(out).indexOf(p)) {
+      out = out.slice(0, i) + out.slice(i + p.length);
+    }
+  }
+  return out
+    .split(/(\s+)/)
+    .filter((part) => checkContent(part) !== "profanity")
+    .join("")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
 }

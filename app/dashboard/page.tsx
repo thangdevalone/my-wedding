@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import type { GuestItem, GuestOwner, RsvpRow } from "../lib/db";
+import type { BlockedIp, GuestItem, GuestOwner, RsvpRow } from "../lib/db";
 import "./dashboard.css";
 
 const CATEGORIES = [
@@ -110,6 +110,8 @@ export default function DashboardPage() {
   const [guests, setGuests] = useState<GuestItem[]>([]);
   const [wishes, setWishes] = useState<RsvpRow[]>([]);
   const [deletingWishId, setDeletingWishId] = useState<number | null>(null);
+  const [blockedIps, setBlockedIps] = useState<BlockedIp[]>([]);
+  const [blockingIp, setBlockingIp] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   // Add / Quick form state
@@ -152,6 +154,7 @@ export default function DashboardPage() {
       }
       setGuests(data.guests || []);
       setWishes(data.wishes || []);
+      setBlockedIps(data.blocked || []);
       setAuthUser(data.owner);
       setAuthPass(pass);
       if (typeof window !== "undefined") {
@@ -342,6 +345,42 @@ export default function DashboardPage() {
       }
     } catch {
       alert("Lỗi khi xóa khách mời!");
+    }
+  };
+
+  // Block / unblock the IP a wish was sent from
+  const changeBlockedIp = async (ip: string, action: "block" | "unblock", hours: number | null = null, name = "") => {
+    if (!authUser || !authPass) return;
+    const question =
+      action === "unblock"
+        ? `Bỏ chặn IP ${ip}?`
+        : `Chặn IP ${ip} ${hours ? `trong ${hours} giờ` : "cho đến khi bỏ chặn"}?\n\nLưu ý: khách dùng chung wifi hoặc mạng di động có thể bị chặn theo.`;
+    if (!window.confirm(question)) return;
+
+    setBlockingIp(ip);
+    try {
+      const res = await fetch(
+        action === "block" ? "/api/blocked-ips" : `/api/blocked-ips?ip=${encodeURIComponent(ip)}`,
+        {
+          method: action === "block" ? "POST" : "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "x-dashboard-user": authUser,
+            "x-dashboard-pass": authPass,
+          },
+          body: action === "block" ? JSON.stringify({ ip, hours, reason: `Lời chúc của "${name}"` }) : undefined,
+        }
+      );
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setBlockedIps(data.blocked || []);
+      } else {
+        alert(data.error || "Thao tác thất bại!");
+      }
+    } catch {
+      alert("Lỗi kết nối máy chủ!");
+    } finally {
+      setBlockingIp(null);
     }
   };
 
@@ -1254,24 +1293,102 @@ export default function DashboardPage() {
                           })}
                         </span>
                       )}
+                      {w.ip && <span style={{ fontSize: 12, color: "#8a7e78" }}>IP: {w.ip}</span>}
                     </div>
                     <p style={{ margin: 0, fontSize: 15, fontStyle: "italic", color: "#382420", wordBreak: "break-word" }}>
                       “{w.message}”
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteWish(w)}
-                    disabled={deletingWishId === w.id}
-                    className="db-btn db-btn-sm"
-                    style={{ backgroundColor: "#fee2e2", color: "#b91c1c", flexShrink: 0 }}
-                  >
-                    {deletingWishId === w.id ? "Đang xóa..." : "🗑️ Xóa lời chúc"}
-                  </button>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0 }}>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteWish(w)}
+                      disabled={deletingWishId === w.id}
+                      className="db-btn db-btn-sm"
+                      style={{ backgroundColor: "#fee2e2", color: "#b91c1c" }}
+                    >
+                      {deletingWishId === w.id ? "Đang xóa..." : "🗑️ Xóa lời chúc"}
+                    </button>
+                    {w.ip &&
+                      w.ip !== "local" &&
+                      (blockedIps.some((b) => b.ip === w.ip) ? (
+                        <span style={{ fontSize: 12, color: "#b91c1c", textAlign: "center" }}>Đã chặn IP</span>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => changeBlockedIp(w.ip!, "block", 24, w.name)}
+                            disabled={blockingIp === w.ip}
+                            className="db-btn db-btn-sm"
+                            style={{ backgroundColor: "#fef3c7", color: "#92400e" }}
+                          >
+                            ⏳ Chặn IP 24 giờ
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => changeBlockedIp(w.ip!, "block", null, w.name)}
+                            disabled={blockingIp === w.ip}
+                            className="db-btn db-btn-sm"
+                            style={{ backgroundColor: "#f5f5f4", color: "#44403c" }}
+                          >
+                            🚫 Chặn IP hẳn
+                          </button>
+                        </>
+                      ))}
+                  </div>
                 </div>
               ))}
             </div>
+          )}
+        </section>
+
+        {/* BLOCKED IPS */}
+        <section className="db-card">
+          <div className="db-card-header">
+            <h2 className="db-card-title">
+              <span>🚫</span> IP Đang Bị Chặn ({blockedIps.length})
+            </h2>
+            <span style={{ fontSize: 13, color: "#6b4c3e" }}>
+              IP bị chặn vẫn xem được thiệp, chỉ không gửi được lời chúc
+            </span>
+          </div>
+
+          {blockedIps.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "24px 20px", color: "#786c66" }}>Chưa chặn IP nào.</div>
+          ) : (
+            blockedIps.map((b) => (
+              <div
+                key={b.ip}
+                style={{
+                  padding: "12px 20px",
+                  borderBottom: "1px solid #eee7e1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 14,
+                }}
+              >
+                <div style={{ minWidth: 0, wordBreak: "break-word" }}>
+                  <strong style={{ fontSize: 15, color: "#382420" }}>{b.ip}</strong>
+                  <div style={{ fontSize: 13, color: "#8a7e78" }}>
+                    {b.reason} •{" "}
+                    {b.expiresAt
+                      ? `đến ${new Date(b.expiresAt).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}`
+                      : "đến khi bỏ chặn"}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => changeBlockedIp(b.ip, "unblock")}
+                  disabled={blockingIp === b.ip}
+                  className="db-btn db-btn-sm"
+                  style={{ backgroundColor: "#dcfce7", color: "#166534", flexShrink: 0 }}
+                >
+                  Bỏ chặn
+                </button>
+              </div>
+            ))
           )}
         </section>
       </main>
