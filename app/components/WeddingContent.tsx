@@ -4,6 +4,7 @@ import { useMotionScroll } from "../hooks/useMotionScroll";
 import { useWeddingInteractions } from "../hooks/useWeddingInteractions";
 import PhotoGallery from "./PhotoGallery";
 import WishesSection from "./WishesSection";
+import GiftSection from "./GiftSection";
 import type { WishItem } from "../lib/db";
 
 export default function WeddingContent({
@@ -890,6 +891,8 @@ export default function WeddingContent({
         </div>
         {/* Sổ lưu bút - Danh sách lời chúc trước footer */}
         <WishesSection initialWishes={initialWishes} />
+        {/* Hộp mừng cưới - QR chuyển khoản */}
+        <GiftSection />
         <div id="SECTION9" className="w-section">
           <div className="w-section-background"></div>
           <div className="w-container">
