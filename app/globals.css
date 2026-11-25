@@ -1614,3 +1614,203 @@ body {
 .dashboard-root textarea {
   font-size: 16px !important;
 }
+
+/* ==========================================================================
+   GIFT BOX - HỘP MỪNG CƯỚI (2 cột gọn: QR + STK chạm để sao chép)
+   ========================================================================== */
+.gift-section {
+  position: relative !important;
+  width: 420px !important;
+  height: auto !important;
+  min-height: auto !important;
+  background-color: #fdfaf6 !important;
+  background-image: url("/images/bg-paper-texture.webp") !important;
+  background-size: 420px auto !important;
+  background-repeat: repeat-y !important;
+  padding: 4px 16px 22px 16px !important;
+  box-sizing: border-box !important;
+}
+
+.gift-section .w-container {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.gift-wrapper {
+  width: 357.25px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gift-wrapper.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gift-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.gift-header .flourish-line {
+  flex: 1;
+  max-width: 70px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(127, 6, 6, 0.45));
+}
+
+.gift-header .flourish-line:last-child {
+  background: linear-gradient(90deg, rgba(127, 6, 6, 0.45), transparent);
+}
+
+.gift-title {
+  font-family: Taviraj, serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgb(127, 6, 6);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.gift-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.gift-card,
+.gift-zoom-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(127, 6, 6, 0.28);
+  padding: 10px 6px 9px;
+  box-sizing: border-box;
+  font-family: Taviraj, serif;
+  color: rgb(127, 6, 6);
+  text-align: center;
+}
+
+.gift-role {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.gift-qr {
+  display: block;
+  margin: 3px 0 4px;
+  padding: 5px;
+  background: #fff;
+  border: 1px dashed rgba(127, 6, 6, 0.25);
+  cursor: zoom-in;
+  line-height: 0;
+}
+
+.gift-qr img {
+  display: block;
+  width: 104px;
+  height: 104px;
+}
+
+.gift-bank {
+  font-size: 12px;
+  color: #8a786f;
+  font-style: italic;
+}
+
+.gift-number {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 4px;
+  background: transparent;
+  border: 0;
+  font-family: Taviraj, serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: rgb(127, 6, 6);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gift-number svg {
+  opacity: 0.6;
+}
+
+.gift-holder {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: #382420;
+  white-space: nowrap;
+}
+
+.gift-hint {
+  margin: 8px 0 0;
+  font-family: Taviraj, serif;
+  font-size: 11.5px;
+  font-style: italic;
+  text-align: center;
+  color: #8a786f;
+}
+
+.gift-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(30, 6, 6, 0.6);
+  backdrop-filter: blur(3px);
+  animation: giftFade 0.2s ease;
+}
+
+.gift-zoom-card {
+  gap: 6px;
+  padding: 16px 18px 14px;
+  max-width: 300px;
+  width: 100%;
+}
+
+.gift-zoom-card img {
+  width: 240px;
+  height: 240px;
+  max-width: 100%;
+  margin: 4px 0;
+}
+
+.gift-zoom-close {
+  margin-top: 6px;
+  padding: 6px 22px;
+  background: transparent;
+  border: 1px solid rgb(127, 6, 6);
+  color: rgb(127, 6, 6);
+  font-family: Taviraj, serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+@keyframes giftFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
